@@ -3,19 +3,18 @@
 CC=gcc
 DEBUG=gdb
 CFLAGS= -Wall -g -O3 -mabicalls
-OUTFILE=binaries/tp1
+OUTFILE=binaries/tp0
 INPUT=inputs/input.txt
 OUTPUT=inputs/out.txt
-OBJ= binaries/tp1
-SOURCES=src/merge_sort_mips.c 
-ASM=asm/asmMergeSort.S asm/mymalloc.S
+OBJ= binaries/tp0
+SOURCES=src/main.c 
 EXECUTABLE=main
 
 
 all: $(EXECUTABLE)
 
 main:
-	$(CC) $(CFLAGS) -o $(OBJ) $(SOURCES) $(ASM)
+	$(CC) $(CFLAGS) -o $(OBJ) $(SOURCES)
 
 debug: all
 	$(DEBUG) -ex 'tui enable' -ex 'break main' --args $(OUTFILE) -i '$(INPUT)' -o '$(OUTPUT)'

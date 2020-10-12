@@ -36,7 +36,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h> /* File open errors */
-#include "common.h"
+#include "../includes/common.h"
 
 int main (int argc, char **argv)
 {
@@ -119,6 +119,7 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
           /* These options set a flag. */
           {"input", required_argument, 0, 'i'},
           {"output", required_argument, 0, 'o'},
+          {"decode", no_argument, 0, 'd'},
           {"version", no_argument, 0, 'v'},
           {"help", no_argument, 0, 'h'},
           {0, 0, 0, 0}
@@ -201,6 +202,7 @@ void show_help(){
     printf("  -h, --help Print this information and quit.\n");
     printf("  -i, --input Specify input stream/file, '-' for stdin.\n");
     printf("  -o, --output Specify output stream/file, '-' for stdout.\n");
+    printf("  -d, --decode Decode from Base64 encoding.\n");
     printf("Examples:\n");
     printf("  tp0 < in.txt > out.txt\n");
     printf("  cat in.txt | tp1 -i - > out.txt\n");

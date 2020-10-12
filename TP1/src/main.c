@@ -36,6 +36,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h> /* File open errors */
+#include "common.h"
 
 int main (int argc, char **argv)
 {
@@ -192,18 +193,18 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
 */
 void show_help(){
     printf("Usage:\n");
-    printf("  tp1 -h\n");
-    printf("  tp1 -v\n");
-    printf("  tp1 -i in_file -o out_file\n");
+    printf("  tp0 -h\n");
+    printf("  tp0 -v\n");
+    printf("  tp0 -i in_file -o out_file\n");
     printf("Options:\n");
     printf("  -v, --version Print version and quit.\n");
     printf("  -h, --help Print this information and quit.\n");
     printf("  -i, --input Specify input stream/file, '-' for stdin.\n");
     printf("  -o, --output Specify output stream/file, '-' for stdout.\n");
     printf("Examples:\n");
-    printf("  tp1 < in.txt > out.txt\n");
+    printf("  tp0 < in.txt > out.txt\n");
     printf("  cat in.txt | tp1 -i - > out.txt\n");
-    printf("tp1 -i 'inputs/input.txt' -o 'output.txt' \n");
+    printf("tp0 -i 'inputs/input.txt' -o 'output.txt' \n");
 
 }
 

@@ -1,7 +1,7 @@
 66.20 - Organizacion de Computadoras - FIUBA
 =========
   # Trabajos Practicos
-    * TP1: Infraestructura basica - Base 64
+    * TP0: Infraestructura basica - Base 64
     
 
   ## Docker image Qemu MIPS

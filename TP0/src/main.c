@@ -38,15 +38,18 @@
 #include <errno.h> /* File open errors */
 #include "../includes/common.h"
 
+enum Options {INPUT, OUTPUT, DECODE};
+
 int main (int argc, char **argv)
 {
 
   /* The variable options has two strings that will be returned by the 
       calling getOptsProcedure() 
   */
-  char * options[2];
-  options[0] = NULL;
-  options[1] = NULL;
+  char * options[3];
+  options[INPUT] = NULL;
+  options[OUTPUT] = NULL;
+  options[DECODE] = NULL;
   int **arrays_nros = NULL;
   int *arrays_len = NULL;
 
@@ -55,7 +58,7 @@ int main (int argc, char **argv)
 
   int numberLines;
   /* if input filename is not present cannot process => print help*/
-  if( process_file(options[0],&arrays_nros,&arrays_len,&numberLines) == 1 )
+  if( process_file(options[INPUT],&arrays_nros,&arrays_len,&numberLines) == 1 )
     return 1;
   
    for(int j = 0; j < numberLines; j++) {
@@ -76,9 +79,9 @@ int main (int argc, char **argv)
   }
 
   /* if have filename set save to file */
-  if(options[1]!=NULL)
+  if(options[OUTPUT]!=NULL)
   {
-    if ( save_file(options[1],arrays_nros,arrays_len) != 0 )
+    if ( save_file(options[OUTPUT],arrays_nros,arrays_len) != 0 )
       return 1;
   }
   
@@ -90,8 +93,8 @@ int main (int argc, char **argv)
   free(arrays_len);
   free(arrays_nros);
 
-  if(options[1]) free(options[1]);
-  if(options[0]) free(options[0]);
+  if(options[OUTPUT]) free(options[OUTPUT]);
+  if(options[INPUT]) free(options[INPUT]);
 
   /* SO return exit code
   */
@@ -111,6 +114,7 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
 {
   char * input = NULL;
   char * output = NULL;
+
   int c;
   while (1)
   {
@@ -127,7 +131,7 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
       /* getopt_long stores the option index here. */
       int option_index = 0;
 
-      c = getopt_long (argc, argv, "i:o:vh", long_options, &option_index);
+      c = getopt_long (argc, argv, "i:o:vhd", long_options, &option_index);
 
       /* Detect the end of the options. */
       if (c == -1)
@@ -143,7 +147,7 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
             return 1;
           }
           strncpy (input, optarg, sizeof(char) * strlen(optarg) + 1);
-          options[0] = input;
+          options[INPUT] = input;
           break;
 
         case 'o':
@@ -155,7 +159,7 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
             return 1;
           }
           strncpy (output, optarg, sizeof(char)*strlen(optarg)+1);
-          options[1] = output;
+          options[OUTPUT] = output;
           break;
 
         case 'v':
@@ -166,6 +170,15 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
         case 'h':
           show_help();
           return 1;
+          break;
+        
+        case 'd':
+          // if( !(input = (char*) malloc(  )
+          // {
+          //   printf("Pedido de memoria insatisfactorio, getopts 3\n");
+          //   return 1;
+          // }
+          // options[DECODE] = "true";
           break;
 
         default:

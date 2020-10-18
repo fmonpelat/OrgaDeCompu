@@ -35,10 +35,11 @@
 #include <getopt.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <errno.h> /* File open errors */
 #include "../includes/common.h"
 
-enum Options {INPUT, OUTPUT, DECODE};
+enum Options {INPUT, OUTPUT}; // filename options
 
 int main (int argc, char **argv)
 {
@@ -46,55 +47,44 @@ int main (int argc, char **argv)
   /* The variable options has two strings that will be returned by the 
       calling getOptsProcedure() 
   */
-  char * options[3];
-  options[INPUT] = NULL;
-  options[OUTPUT] = NULL;
-  options[DECODE] = NULL;
-  int **arrays_nros = NULL;
-  int *arrays_len = NULL;
+  char * filenameOptions[2];
+  bool decode = false;
+  filenameOptions[INPUT] = NULL;
+  filenameOptions[OUTPUT] = NULL;
 
-  if(getOptsProcedure(argc,argv,options) == 1)
+  char **arraysStrings = NULL;
+  int *arraysLen = NULL; // array that contains the len from each arraysStrings
+
+  if(getOptsProcedure(argc,argv,filenameOptions,&decode) == 1)
     return 1;
 
-  int numberLines;
+  int numberLines = 0;
   /* if input filename is not present cannot process => print help*/
-  if( process_file(options[INPUT],&arrays_nros,&arrays_len,&numberLines) == 1 )
+  if( process_file(filenameOptions[INPUT],&arraysStrings,&numberLines,decode) == 1 )
     return 1;
   
-   for(int j = 0; j < numberLines; j++) {
-     /*
-    if(arrays_nros[j] == 0 || arrays_len[j] == 0)
-    {
-      printf("%s\n","");
-      continue;
-    }
-    
-    // call for base64 encoding/decoding procedure
-    printing if needed
-    for(int h = 0; h < arrays_len[j]; h++)
-      printf("%i ", arrays_nros[j][h]);
-    printf("\n");
-    fflush(stdout);
-  */
+  for(int j = 0; j < numberLines; j++)
+  {
+    printf("%s\n",arraysStrings[j]);
   }
 
   /* if have filename set save to file */
-  if(options[OUTPUT]!=NULL)
-  {
-    if ( save_file(options[OUTPUT],arrays_nros,arrays_len) != 0 )
-      return 1;
-  }
+  // if(filenameOptions[OUTPUT]!=NULL)
+  // {
+  //   if ( save_file(filenameOptions[OUTPUT],arraysStrings,arraysLen) != 0 )
+  //     return 1;
+  // }
   
   
   /* dynamic memory free 
   */
-  for(int i = 0; arrays_nros[i]==0;i++)
-    free(arrays_nros[i]);
-  free(arrays_len);
-  free(arrays_nros);
+  for(int i = 0; i<numberLines;i++)
+    free(arraysStrings[i]);
+  // free(arraysLen);
+  free(arraysStrings);
 
-  if(options[OUTPUT]) free(options[OUTPUT]);
-  if(options[INPUT]) free(options[INPUT]);
+  if(filenameOptions[OUTPUT]) free(filenameOptions[OUTPUT]);
+  if(filenameOptions[INPUT]) free(filenameOptions[INPUT]);
 
   /* SO return exit code
   */
@@ -107,13 +97,16 @@ int main (int argc, char **argv)
 *  Arguments: 
 *             int argc
 *             int ** argv
-*             char * options[x] : Array of strings (char*) of size x
+*             char * filenames[x] : Array of strings (char*) of size x
+*             bool * decode : Decoding instead of encoding (initially false)
 *  Notes: GetOpts Procedure of main program, please free up options array after using the procedure.
 */
-int getOptsProcedure(int argc,char ** argv,char * options[2])
+int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
 {
   char * input = NULL;
   char * output = NULL;
+  // initially decode is false
+  *decode = false;
 
   int c;
   while (1)
@@ -147,7 +140,7 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
             return 1;
           }
           strncpy (input, optarg, sizeof(char) * strlen(optarg) + 1);
-          options[INPUT] = input;
+          filenames[INPUT] = input;
           break;
 
         case 'o':
@@ -159,26 +152,21 @@ int getOptsProcedure(int argc,char ** argv,char * options[2])
             return 1;
           }
           strncpy (output, optarg, sizeof(char)*strlen(optarg)+1);
-          options[OUTPUT] = output;
+          filenames[OUTPUT] = output;
           break;
 
         case 'v':
           show_version();
-          return 1;
+          return 0;
           break;
 
         case 'h':
           show_help();
-          return 1;
+          return 0;
           break;
         
         case 'd':
-          // if( !(input = (char*) malloc(  )
-          // {
-          //   printf("Pedido de memoria insatisfactorio, getopts 3\n");
-          //   return 1;
-          // }
-          // options[DECODE] = "true";
+          *decode = true;
           break;
 
         default:
@@ -239,7 +227,7 @@ void show_version(){
 *             
 *  Notes: this function process the incoming file and creates the array.
 */
-int process_file(char* file, int ***lineas, int **array_len,int *numlines){
+int process_file(char* file, char ***lineas,int *numlines,bool decode ){
 
     /* Opening file pointer
     */
@@ -257,29 +245,22 @@ int process_file(char* file, int ***lineas, int **array_len,int *numlines){
     /* Buffer array of chars to read each line
     */
     char *line = NULL; /* Assign pointer of buffer */
-    size_t linesize = 32; /* Buffer size is 32 */
+    size_t linesize = 255; /* Buffer size is 255 */
     size_t nread; /* Number of characters read */
-
-    /* malloc always returns void * better cast it */
-    if( !(line = (char *) malloc(linesize * sizeof(char))) )
-    {
-      fprintf(stderr,"Pedido de memoria insatisfactorio,process file 1\n");
-      return 1;
-    }
     
      /* malloc for the pointer for int *lineas */
-    if( !(*lineas = (int **) malloc(sizeof(int *))) )
+    if( !(*lineas = (char **) malloc(sizeof(char *))) )
     {
       fprintf(stderr,"Pedido de memoria insatisfactorio, process file 2\n");
       return 1;
     }
 
-    /* malloc for the pointer int * array_len */
-    if( !(*array_len = (int *) malloc( sizeof(int) )) )
-    {
-      fprintf(stderr,"Pedido de memoria insatisfactorio, process file 3\n");
-      return 1;
-    }
+    // /* malloc for the pointer int * array_len */
+    // if( !(*array_len = (int *) malloc( sizeof(int) )) )
+    // {
+    //   fprintf(stderr,"Pedido de memoria insatisfactorio, process file 3\n");
+    //   return 1;
+    // }
 
     /* numlines is the variable that holds the count of lines read */
     *numlines = 0;
@@ -289,75 +270,26 @@ int process_file(char* file, int ***lineas, int **array_len,int *numlines){
     while ((nread = getline(&line, &linesize, f)) != -1){
         
         /* aux variable to store all numbers */
-        int * array_num = (int *) malloc( sizeof(int) * nread);
-        if(array_num == NULL )
+        char * string = (char *) malloc( sizeof(char) * nread);
+        if(string == NULL )
         {
           fprintf(stderr,"Pedido de memoria insatisfactorio, process file 4\n");
           return 1;
         }
-        /* idx is the index of array_num, after for finish we will have the len of array_num
-        */
-        int idx = 0;
-            
-        for(int i = 0; i < nread ; i++){
-          int x;
-          if(isdigit(line[i])) {   
-            sscanf(&line[i], "%i", &x);
-            /* printf("%i \n", x); */
-            array_num[idx] = x;
-            idx ++;
-          }
-          else if(line[i]=='-')
-          {
-            i++; /* scan the next char (if its not a digit its a filerror) */
-            if(! isdigit(line[i]))
-            {
-              fprintf(stderr,"%s\n","File syntax error!");
-              return 1;
-            }
-            sscanf(&line[i], "%i", &x);
-            /* printf("%i \n", x); */
-            array_num[idx] = (x * -1);
-            idx ++;
-          }
-        }
-
-        /* malloc to withold the data exactly */
-        int * array_new = malloc( idx * sizeof(int) );
-        if( array_new == NULL)
-        {
-          fprintf(stderr,"Pedido de memoria insatisfactorio, process file 5\n");
-          return 1;
-        }
-        /* guardo valores en la memoria */
-        memcpy(array_new, array_num, idx * sizeof(int));
+        if( line[nread-1]=='\n') line[nread-1]='\0';
+        memcpy(string, line, nread * sizeof(char));
 
         /* guardo direccion de memoria del array y longitud */
-        (*lineas)[*numlines] = array_new;
-        (*array_len)[*numlines] = idx;
+        (*lineas)[*numlines] = string;
+        // printf("strlen: %zu\n",strlen(string));
         (*numlines)++;
-        
-        /* realloc to increase one size pointer for int *lineas */
-        *lineas =  (int **) realloc( *lineas, ((size_t)(*numlines)+1) * sizeof(int *) );
-        if(lineas == NULL)
-        {
-          fprintf(stderr,"Pedido de memoria insatisfactorio, process file 6\n");
-          return 1;
-        }
-        /* realloc to increase one size pointer for int *lineas */
-        *array_len =  (int *) realloc( *array_len, ((size_t)(*numlines)+1) * sizeof(int) );
-        if(array_len == NULL)
-        {
-          fprintf(stderr,"Pedido de memoria insatisfactorio, process file 6\n");
-          return 1;
-        }
-        free(array_num);
+               
     }
     /* terminator line */
-    (*lineas)[*numlines] = 0;
-    (*array_len)[*numlines] = 0;
     fclose(f);
-    if(line) free(line);
+
+    if(line) 
+      free(line);
     return 0;
 }
 
@@ -369,7 +301,7 @@ int process_file(char* file, int ***lineas, int **array_len,int *numlines){
 *             
 *  Notes: this function process the incoming file and creates the array.
 */
-int save_file(char* file, int **lineas, int *array_len){
+int save_file(char* file, char **lineas, int *array_len){
     FILE * f;
     if(!strcmp(file,"-"))
       f = stdout; /* compatibility with piping */
@@ -381,14 +313,14 @@ int save_file(char* file, int **lineas, int *array_len){
     }
 
     /* write numbers on the file stream*/
-    for(int j = 0; lineas[j]!=0 ; j++)
-    {
-        for(int h = 0; h < array_len[j]; h++)
-        {
-                fprintf(f,"%i ", (lineas[j])[h]);
-        }
-        fprintf(f,"\n");
-    }
+    // for(int j = 0; lineas[j]!=0 ; j++)
+    // {
+    //     for(int h = 0; h < array_len[j]; h++)
+    //     {
+    //             fprintf(f,"%s ", (lineas[j])[h]);
+    //     }
+    //     fprintf(f,"\n");
+    // }
    /* close the file*/  
    fclose (f);
    return 0;

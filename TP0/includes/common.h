@@ -5,7 +5,7 @@ void show_help();
 
 void show_version();
 
-int process_file(char* file, char ***lineas, int *numlines);
+int process_file(char* file, char ***lineas, size_t *numlines);
 
 int save_file(char* file, char **lineas, size_t numLines);
 

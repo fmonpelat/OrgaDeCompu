@@ -2,7 +2,7 @@
 
 CC=gcc
 DEBUG=gdb
-CFLAGS= -Wall -g -O3 -mabicalls
+CFLAGS= -Wall -g -O3 -mabicalls -Wconversion -Wtype-limits -pedantic -Werror
 OUTFILE=binaries/tp0
 INPUT=input/input.txt
 OUTPUT=input/out.txt

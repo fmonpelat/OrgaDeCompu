@@ -51,7 +51,7 @@ int main (int argc, char **argv)
   filenameOptions[OUTPUT] = NULL;
   bool decode = false;       /* Decode flag that activates decoding mode */
   int getOpts = 0;           /* getOpts variable that holds the return status of getopts parser */
-  int numberLines = 0;       /* Number of lines readed by process_file() */
+  size_t numberLines = 0;       /* Number of lines readed by process_file() */
   char **arraysStrings = NULL; /* Array of strings that holds what is read */
 
   if( (getOpts = getOptsProcedure(argc,argv,filenameOptions,&decode)) == 1 )
@@ -243,7 +243,7 @@ void show_version(){
 *             
 *  Notes: this function process the incoming file and creates the array.
 */
-int process_file(char* file, char ***lineas,int *numlines){
+int process_file(char* file, char ***lineas,size_t *numlines){
 
     /* Opening file pointer
     */

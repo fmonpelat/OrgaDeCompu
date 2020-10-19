@@ -5,9 +5,9 @@ void show_help();
 
 void show_version();
 
-int process_file(char* file, char ***lineas, int *numlines,bool decode);
+int process_file(char* file, char ***lineas, int *numlines);
 
-int save_file(char* file, char **lineas, int *arrayLen);
+int save_file(char* file, char **lineas, size_t numLines);
 
 int getOptsProcedure(int argc,char ** argv,char * options[2], bool * decode);
 

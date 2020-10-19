@@ -1,5 +1,8 @@
-#include "encriptado_base64.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "../includes/encriptado_base64.h"
 
 char* construir_tabla_decodificadora() {
 
@@ -21,10 +24,9 @@ char* construir_tabla_decodificadora() {
 }
 
 
-char *encriptar_base64(const unsigned char *texto,
-                    size_t tamanio_texto,
-                    size_t *tamanio_decodificacion) {
-
+char *encriptar_base64(const unsigned char *texto,size_t tamanio_texto)
+{
+    size_t tamanio_decodificacion;
 	char tabla_codificacion[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 	                                'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
 	                                'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -36,9 +38,9 @@ char *encriptar_base64(const unsigned char *texto,
 
 	int tabla_de_restos[] = {0, 2, 1};
 
-    *tamanio_decodificacion = 4 * ((tamanio_texto + 2) / 3);
+    tamanio_decodificacion = 4 * ((tamanio_texto + 2) / 3);
 
-    char *cadena_encodeada = malloc(*tamanio_decodificacion);
+    char *cadena_encodeada = malloc(tamanio_decodificacion);
     if (cadena_encodeada == NULL) return NULL;
 
     for (int i = 0, j = 0; i < tamanio_texto;) {
@@ -56,25 +58,24 @@ char *encriptar_base64(const unsigned char *texto,
     }
 
     for (int i = 0; i < tabla_de_restos[tamanio_texto % 3]; i++)
-        cadena_encodeada[*tamanio_decodificacion - 1 - i] = '=';
+        cadena_encodeada[tamanio_decodificacion - 1 - i] = '=';
 
     return cadena_encodeada;
 }
 
 
-unsigned char *desencriptar_base64(const char *texto_encodeado,
-                             size_t longitud_encodeado,
-                             size_t *longitud_texto) {
-
+unsigned char *desencriptar_base64(const char *texto_encodeado,size_t longitud_encodeado)
+{
+    size_t longitud_texto;
 	char* tabla_decodificacion=construir_tabla_decodificadora();
 
     if (longitud_encodeado % 4 != 0) return NULL;
 
-    *longitud_texto = longitud_encodeado / 4 * 3;
-    if (texto_encodeado[longitud_encodeado - 1] == '=') (*longitud_texto)--;
-    if (texto_encodeado[longitud_encodeado - 2] == '=') (*longitud_texto)--;
+    longitud_texto = longitud_encodeado / 4 * 3;
+    if (texto_encodeado[longitud_encodeado - 1] == '=') (longitud_texto)--;
+    if (texto_encodeado[longitud_encodeado - 2] == '=') (longitud_texto)--;
 
-    unsigned char *decoded_data = malloc(*longitud_texto*sizeof(char));
+    unsigned char *decoded_data = malloc(longitud_texto*sizeof(char));
     if (decoded_data == NULL) return NULL;
 
     for (int i = 0, j = 0; i < longitud_encodeado;) {
@@ -89,9 +90,9 @@ unsigned char *desencriptar_base64(const char *texto_encodeado,
         + (sextet_c << 1 * 6)
         + (sextet_d << 0 * 6);
 
-        if (j < *longitud_texto) decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
-        if (j < *longitud_texto) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
-        if (j < *longitud_texto) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
+        if (j < longitud_texto) decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
+        if (j < longitud_texto) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
+        if (j < longitud_texto) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
     }
 
     return decoded_data;

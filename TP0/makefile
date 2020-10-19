@@ -27,4 +27,4 @@ test: all
 	tests/tests.sh $(OUTFILE)
 
 clean:
-	rm -rf binaries/* input/*out.txt
+	rm -rf binaries/* inputs/*out.txt

@@ -82,12 +82,9 @@ int main (int argc, char **argv)
   }
   
 
-  /* if have filename set save to file */
-  if(filenameOptions[OUTPUT]!=NULL)
-  {
+  /* if have filename set save to file if not print on stdout with same function */
     if ( save_file(filenameOptions[OUTPUT],outStrings,numberLines,outStringsLen) != 0 )
       return 1;
-  }
   
   
   /* dynamic memory free 
@@ -311,7 +308,7 @@ int process_file(char* file, char ***lineas,size_t *numlines){
 */
 int save_file(char* file, char **lineas, size_t numLines, size_t *lineasLen){
     FILE * f;
-    if(!strcmp(file,"-"))
+    if(file == NULL || !strcmp(file,"-"))
       f = stdout; /* compatibility with piping */
     else
       f = fopen (file,"w"); /* open the file for writing*/
@@ -319,7 +316,6 @@ int save_file(char* file, char **lineas, size_t numLines, size_t *lineasLen){
       fprintf(stderr,"Error al grabar %s, %s\n", file, strerror(errno)); 
       return(1);             
     }
-
     /* write numbers on the file stream*/
     for(int j = 0; j<numLines ; j++)
     {

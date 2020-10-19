@@ -10,8 +10,8 @@ echo "1. Printing help"
     if [ $RETVAL -ne 0 ]; then  echo "  Error on Printing help";RETGLOBAL=$(echo 1); else echo " OK"; fi
 
 echo "2. Test normal execution"
-    $OUTFILE -i inputs/input.txt -o inputs/output.txt
-    diff inputs/output.txt tests/output.txt > /dev/null 2>&1 
+    $OUTFILE -i inputs/input.txt -o inputs/outputout.txt
+    diff inputs/outputout.txt tests/outputout.txt > /dev/null 2>&1 
     RETVAL=$(echo $?)
     if [ $RETVAL -ne 0 ]; then  echo "  Error on Test normal execution";RETGLOBAL=$(echo 1); else echo " OK"; fi
 

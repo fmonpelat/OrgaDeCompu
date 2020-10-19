@@ -38,50 +38,66 @@
 #include <stdbool.h>
 #include <errno.h> /* File open errors */
 #include "../includes/common.h"
+#include "../includes/encriptado_base64.h"
 
-enum Options {INPUT, OUTPUT}; // filename options
+
+enum Options {INPUT, OUTPUT}; // filenameOptions
 
 int main (int argc, char **argv)
 {
 
-  /* The variable options has two strings that will be returned by the 
-      calling getOptsProcedure() 
-  */
-  char * filenameOptions[2];
-  bool decode = false;
+  char * filenameOptions[2]; /* array that contains filenames from input and output */
   filenameOptions[INPUT] = NULL;
   filenameOptions[OUTPUT] = NULL;
+  bool decode = false;       /* Decode flag that activates decoding mode */
+  int getOpts = 0;           /* getOpts variable that holds the return status of getopts parser */
+  int numberLines = 0;       /* Number of lines readed by process_file() */
+  char **arraysStrings = NULL; /* Array of strings that holds what is read */
 
-  char **arraysStrings = NULL;
-  int *arraysLen = NULL; // array that contains the len from each arraysStrings
-
-  if(getOptsProcedure(argc,argv,filenameOptions,&decode) == 1)
+  if( (getOpts = getOptsProcedure(argc,argv,filenameOptions,&decode)) == 1 )
     return 1;
+  else if( getOpts == -1)
+    return 0;
 
-  int numberLines = 0;
-  /* if input filename is not present cannot process => print help*/
-  if( process_file(filenameOptions[INPUT],&arraysStrings,&numberLines,decode) == 1 )
+  if( process_file(filenameOptions[INPUT],&arraysStrings,&numberLines) == 1 )
     return 1;
   
+  char ** outStrings = (char **) malloc( sizeof(char*) * numberLines ); /* Initial malloc outStrings vector */
+
   for(int j = 0; j < numberLines; j++)
   {
-    printf("%s\n",arraysStrings[j]);
+    char * outString = (char *) malloc( sizeof(char) * (strlen(arraysStrings[j]+1)));
+
+    if(decode==true)
+    {
+      outString = (char*) desencriptar_base64(arraysStrings[j],strlen(arraysStrings[j]));
+    }
+    else
+    {
+      outString = (char*) encriptar_base64((unsigned char*)arraysStrings[j],strlen(arraysStrings[j]));
+    }
+    outStrings[j] = outString;
   }
+  
 
   /* if have filename set save to file */
-  // if(filenameOptions[OUTPUT]!=NULL)
-  // {
-  //   if ( save_file(filenameOptions[OUTPUT],arraysStrings,arraysLen) != 0 )
-  //     return 1;
-  // }
+  if(filenameOptions[OUTPUT]!=NULL)
+  {
+    if ( save_file(filenameOptions[OUTPUT],outStrings,numberLines) != 0 )
+      return 1;
+  }
   
   
   /* dynamic memory free 
   */
   for(int i = 0; i<numberLines;i++)
+  {
     free(arraysStrings[i]);
-  // free(arraysLen);
+    free(outStrings[i]);
+  }
+  
   free(arraysStrings);
+  free(outStrings);
 
   if(filenameOptions[OUTPUT]) free(filenameOptions[OUTPUT]);
   if(filenameOptions[INPUT]) free(filenameOptions[INPUT]);
@@ -98,7 +114,7 @@ int main (int argc, char **argv)
 *             int argc
 *             int ** argv
 *             char * filenames[x] : Array of strings (char*) of size x
-*             bool * decode : Decoding instead of encoding (initially false)
+*             bool * decode : Decoding flag instead of encoding (initially false)
 *  Notes: GetOpts Procedure of main program, please free up options array after using the procedure.
 */
 int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
@@ -157,12 +173,12 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
 
         case 'v':
           show_version();
-          return 0;
+          return -1;
           break;
 
         case 'h':
           show_help();
-          return 0;
+          return -1;
           break;
         
         case 'd':
@@ -222,12 +238,12 @@ void show_version(){
 /* Function Name: process_file
 *  Arguments: 
 *             char * file     : Input filename
-*             int * lineas [] : int * array of numbers by lines read
-*             int * array_len : Array length of each line in lineas array.
+*             char ** lineas [] : char ** array of strings to read
+*             int * numlines: Number of lines read
 *             
 *  Notes: this function process the incoming file and creates the array.
 */
-int process_file(char* file, char ***lineas,int *numlines,bool decode ){
+int process_file(char* file, char ***lineas,int *numlines){
 
     /* Opening file pointer
     */
@@ -245,7 +261,7 @@ int process_file(char* file, char ***lineas,int *numlines,bool decode ){
     /* Buffer array of chars to read each line
     */
     char *line = NULL; /* Assign pointer of buffer */
-    size_t linesize = 255; /* Buffer size is 255 */
+    size_t linesize = 200; /* Buffer size is 200 */
     size_t nread; /* Number of characters read */
     
      /* malloc for the pointer for int *lineas */
@@ -255,13 +271,6 @@ int process_file(char* file, char ***lineas,int *numlines,bool decode ){
       return 1;
     }
 
-    // /* malloc for the pointer int * array_len */
-    // if( !(*array_len = (int *) malloc( sizeof(int) )) )
-    // {
-    //   fprintf(stderr,"Pedido de memoria insatisfactorio, process file 3\n");
-    //   return 1;
-    // }
-
     /* numlines is the variable that holds the count of lines read */
     *numlines = 0;
 
@@ -269,7 +278,6 @@ int process_file(char* file, char ***lineas,int *numlines,bool decode ){
     */
     while ((nread = getline(&line, &linesize, f)) != -1){
         
-        /* aux variable to store all numbers */
         char * string = (char *) malloc( sizeof(char) * nread);
         if(string == NULL )
         {
@@ -279,13 +287,11 @@ int process_file(char* file, char ***lineas,int *numlines,bool decode ){
         if( line[nread-1]=='\n') line[nread-1]='\0';
         memcpy(string, line, nread * sizeof(char));
 
-        /* guardo direccion de memoria del array y longitud */
         (*lineas)[*numlines] = string;
         // printf("strlen: %zu\n",strlen(string));
         (*numlines)++;
                
     }
-    /* terminator line */
     fclose(f);
 
     if(line) 
@@ -301,7 +307,7 @@ int process_file(char* file, char ***lineas,int *numlines,bool decode ){
 *             
 *  Notes: this function process the incoming file and creates the array.
 */
-int save_file(char* file, char **lineas, int *array_len){
+int save_file(char* file, char **lineas, size_t numLines){
     FILE * f;
     if(!strcmp(file,"-"))
       f = stdout; /* compatibility with piping */
@@ -313,14 +319,10 @@ int save_file(char* file, char **lineas, int *array_len){
     }
 
     /* write numbers on the file stream*/
-    // for(int j = 0; lineas[j]!=0 ; j++)
-    // {
-    //     for(int h = 0; h < array_len[j]; h++)
-    //     {
-    //             fprintf(f,"%s ", (lineas[j])[h]);
-    //     }
-    //     fprintf(f,"\n");
-    // }
+    for(int j = 0; j<numLines ; j++)
+    {
+      fprintf(f,"%s\n",lineas[j]);
+    }
    /* close the file*/  
    fclose (f);
    return 0;

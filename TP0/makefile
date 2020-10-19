@@ -7,7 +7,7 @@ OUTFILE=binaries/tp0
 INPUT=input/input.txt
 OUTPUT=input/out.txt
 OBJ= binaries/tp0
-SOURCES=src/main.c 
+SOURCES=src/main.c src/encriptado_base64.c
 EXECUTABLE=main
 
 all: $(EXECUTABLE)

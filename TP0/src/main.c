@@ -302,8 +302,8 @@ int process_file(char* file, char ***lineas,int *numlines){
 /* Function Name: save_file
 *  Arguments: 
 *             char * file     : Saving filename
-*             int * lineas [] :
-*             int * array_len :
+*             char * lineas [] : Array of strings
+*             size_t numLines: Number of lines read
 *             
 *  Notes: this function process the incoming file and creates the array.
 */

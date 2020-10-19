@@ -25,10 +25,13 @@ debugasm: all
 
 test: all
 	$(info Test cases...)
+	
 	$(info 1. Printing help)
-#tp0 -h 
+	$(OUTFILE) -h > /dev/null; RETVAL=$(echo $?); if [ $RETVAL -ne 0 ]; then  echo "Error on Printing help"; fi
+	
 	$(info 2. Test normal execution)
-#tp0 -i inputs/input.txt -o output/output.txt
+	$(OUTFILE) -i input/input.txt -o output/output.txt; diff output/output.txt tests/output1.txt; RETVAL=$(echo $?); if [ $RETVAL -ne 0 ]; then  echo "Error on Test normal execution"; fi
+	
 	$(info 3. Test decode)
 #tp0 -d -i input/qb64 -o output/output.txt
 	$(info 4. Test empty input)

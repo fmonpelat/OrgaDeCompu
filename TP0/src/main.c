@@ -61,21 +61,23 @@ int main (int argc, char **argv)
 
   if( process_file(filenameOptions[INPUT],&arraysStrings,&numberLines) == 1 )
     return 1;
-  
+  size_t outStringsLen[numberLines];
   char ** outStrings = (char **) malloc( sizeof(char*) * numberLines ); /* Initial malloc outStrings vector */
 
   for(int j = 0; j < numberLines; j++)
   {
+    size_t len;
     char * outString = (char *) malloc( sizeof(char) * (strlen(arraysStrings[j]+1)));
 
     if(decode==true)
     {
-      outString = (char*) desencriptar_base64(arraysStrings[j],strlen(arraysStrings[j]));
+      outString = (char*) desencriptar_base64(arraysStrings[j],strlen(arraysStrings[j]),&len);
     }
     else
     {
-      outString = (char*) encriptar_base64((unsigned char*)arraysStrings[j],strlen(arraysStrings[j]));
+      outString = (char*) encriptar_base64((unsigned char*)arraysStrings[j],strlen(arraysStrings[j]),&len);
     }
+    outStringsLen[j] = len;
     outStrings[j] = outString;
   }
   
@@ -83,7 +85,7 @@ int main (int argc, char **argv)
   /* if have filename set save to file */
   if(filenameOptions[OUTPUT]!=NULL)
   {
-    if ( save_file(filenameOptions[OUTPUT],outStrings,numberLines) != 0 )
+    if ( save_file(filenameOptions[OUTPUT],outStrings,numberLines,outStringsLen) != 0 )
       return 1;
   }
   
@@ -262,7 +264,7 @@ int process_file(char* file, char ***lineas,size_t *numlines){
     */
     char *line = NULL; /* Assign pointer of buffer */
     size_t linesize = 200; /* Buffer size is 200 */
-    size_t nread; /* Number of characters read */
+    ssize_t nread; /* Number of characters read */
     
      /* malloc for the pointer for int *lineas */
     if( !(*lineas = (char **) malloc(sizeof(char *))) )
@@ -278,7 +280,7 @@ int process_file(char* file, char ***lineas,size_t *numlines){
     */
     while ((nread = getline(&line, &linesize, f)) != -1){
         
-        char * string = (char *) malloc( sizeof(char) * nread);
+        char * string = (char *) malloc( sizeof(char) * (size_t) nread);
         if(string == NULL )
         {
           fprintf(stderr,"Pedido de memoria insatisfactorio, process file 4\n");
@@ -307,7 +309,7 @@ int process_file(char* file, char ***lineas,size_t *numlines){
 *             
 *  Notes: this function process the incoming file and creates the array.
 */
-int save_file(char* file, char **lineas, size_t numLines){
+int save_file(char* file, char **lineas, size_t numLines, size_t *lineasLen){
     FILE * f;
     if(!strcmp(file,"-"))
       f = stdout; /* compatibility with piping */
@@ -321,7 +323,8 @@ int save_file(char* file, char **lineas, size_t numLines){
     /* write numbers on the file stream*/
     for(int j = 0; j<numLines ; j++)
     {
-      fprintf(f,"%s\n",lineas[j]);
+      fwrite(lineas[j],sizeof(char),lineasLen[j],f);
+      fprintf(f,"%s","\n");
     }
    /* close the file*/  
    fclose (f);

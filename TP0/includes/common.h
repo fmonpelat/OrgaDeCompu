@@ -7,7 +7,7 @@ void show_version();
 
 int process_file(char* file, char ***lineas, size_t *numlines);
 
-int save_file(char* file, char **lineas, size_t numLines);
+int save_file(char* file, char **lineas, size_t numLines, size_t *lineasLen);
 
 int getOptsProcedure(int argc,char ** argv,char * options[2], bool * decode);
 

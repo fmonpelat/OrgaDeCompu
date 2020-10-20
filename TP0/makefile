@@ -12,7 +12,8 @@ EXECUTABLE=main
 
 all: $(EXECUTABLE)
 
-main:
+main: 
+	@mkdir binaries
 	$(CC) $(CFLAGS) -o $(OBJ) $(SOURCES)
 
 debug: all

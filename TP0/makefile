@@ -13,7 +13,7 @@ EXECUTABLE=main
 all: $(EXECUTABLE)
 
 main: 
-	@mkdir binaries
+	@mkdir -p binaries
 	$(CC) $(CFLAGS) -o $(OBJ) $(SOURCES)
 
 debug: all

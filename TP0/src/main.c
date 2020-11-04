@@ -40,6 +40,8 @@
 #include "../includes/common.h"
 #include "../includes/encriptado_base64.h"
 
+#define BUF_SIZE 3
+#define BUF_BASE64 BUF_SIZE*2
 
 enum Options {INPUT, OUTPUT}; // filenameOptions
 
@@ -51,53 +53,36 @@ int main (int argc, char **argv)
   filenameOptions[OUTPUT] = NULL;
   bool decode = false;       /* Decode flag that activates decoding mode */
   int getOpts = 0;           /* getOpts variable that holds the return status of getopts parser */
-  size_t numberLines = 0;       /* Number of lines readed by process_file() */
-  char **arraysStrings = NULL; /* Array of strings that holds what is read */
+  FILE *f = NULL;
+  FILE *fout = NULL;
+  char buf[BUF_SIZE+1]; // BUF_SIZE + 1 for '\n'
+  size_t bufsize = BUF_SIZE; // Buffer size
+  char bufBase64[BUF_BASE64]; // buffer for encoded/decoded string
+  size_t nread; // readed chars from stream
+  size_t len; // length of decoded/encoded string
 
   if( (getOpts = getOptsProcedure(argc,argv,filenameOptions,&decode)) == 1 )
     return 1;
   else if( getOpts == -1)
     return 0;
 
-  if( process_file(filenameOptions[INPUT],&arraysStrings,&numberLines) == 1 )
+  if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f,&fout)!=true )
     return 1;
-  size_t outStringsLen[numberLines];
-  char ** outStrings = (char **) malloc( sizeof(char*) * numberLines ); /* Initial malloc outStrings vector */
 
-  for(int j = 0; j < numberLines; j++)
-  {
-    size_t len;
-    char * outString = (char *) malloc( sizeof(char) * (strlen(arraysStrings[j]+1)));
-
-    if(decode==true)
-    {
-      outString = (char*) desencriptar_base64(arraysStrings[j],strlen(arraysStrings[j]),&len);
-    }
-    else
-    {
-      outString = (char*) encriptar_base64((unsigned char*)arraysStrings[j],strlen(arraysStrings[j]),&len);
-    }
-    outStringsLen[j] = len;
-    outStrings[j] = outString;
+  while( (nread = fread(buf, sizeof(char), bufsize, f)) >=1 ) {
+      if(decode==true)
+        desencriptar_base64(buf,nread,bufBase64,&len);
+      else
+        encriptar_base64((const unsigned char *)buf,nread,bufBase64,&len);
+      
+      /* write numbers on the file stream*/
+      fwrite(bufBase64,sizeof(char),len,fout);
   }
-  
+   /* close the file*/  
+  fclose(f);
+  fclose(fout);
 
-  /* if have filename set save to file if not print on stdout with same function */
-    if ( save_file(filenameOptions[OUTPUT],outStrings,numberLines,outStringsLen) != 0 )
-      return 1;
-  
-  
-  /* dynamic memory free 
-  */
-  for(int i = 0; i<numberLines;i++)
-  {
-    free(arraysStrings[i]);
-    free(outStrings[i]);
-  }
-  
-  free(arraysStrings);
-  free(outStrings);
-
+  /* free of used filenames */
   if(filenameOptions[OUTPUT]) free(filenameOptions[OUTPUT]);
   if(filenameOptions[INPUT]) free(filenameOptions[INPUT]);
 
@@ -204,6 +189,39 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
 }
 
 
+/* Procedure Name: prepareStreams
+*  Arguments: 
+*             char *filenameinput  : Filename input char *
+*             char *filenameoutput : Filename output char *
+*             FILE **f_in          : FILE * for input stream
+*             FILE **f_out         : FILE * for output stream
+*  Notes: n/a
+*/
+bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **f_out)
+{
+  if( filenameinput==NULL || !strcmp(filenameinput,"-"))
+    *f_in = stdin; /* compatibility with piping */
+  else
+    *f_in = fopen(filenameinput, "r"); /* open from file */
+  if (*f_in==NULL)
+  {
+      fprintf(stderr,"%s\n",filenameinput);
+      fprintf(stderr,"Error al abrir el archivo '%s', %s\n", filenameinput, strerror(errno));
+      return false;
+  }
+
+  if(filenameoutput == NULL || !strcmp(filenameoutput,"-"))
+    *f_out = stdout; /* compatibility with piping */
+  else
+    *f_out = fopen (filenameoutput,"w"); /* open the file for writing*/
+  if(*f_out == NULL)
+  {
+    fprintf(stderr,"Error al grabar %s, %s\n", filenameoutput, strerror(errno)); 
+    return false;    
+  }
+  return true;
+}
+
 /* Function Name: show_help 
 *
 *  Notes: this function show the menu of help with all the options available
@@ -232,97 +250,4 @@ void show_help(){
 */
 void show_version(){
   printf("v0.0.1\n");
-}
-
-/* Function Name: process_file
-*  Arguments: 
-*             char * file     : Input filename
-*             char ** lineas [] : char ** array of strings to read
-*             int * numlines: Number of lines read
-*             
-*  Notes: this function process the incoming file and creates the array.
-*/
-int process_file(char* file, char ***lineas,size_t *numlines){
-
-    /* Opening file pointer
-    */
-    FILE *f;
-    if( file==NULL || !strcmp(file,"-"))
-      f = stdin; /* compatibility with piping */
-    else
-      f = fopen(file, "r"); /* open from file */
-    if (f==NULL)
-    {
-        fprintf(stderr,"Error al abrir el archivo '%s', %s\n", file, strerror(errno));
-        return 1;
-    }
-
-    /* Buffer array of chars to read each line
-    */
-    char *line = NULL; /* Assign pointer of buffer */
-    size_t linesize = 200; /* Buffer size is 200 */
-    ssize_t nread; /* Number of characters read */
-    
-     /* malloc for the pointer for int *lineas */
-    if( !(*lineas = (char **) malloc(sizeof(char *))) )
-    {
-      fprintf(stderr,"Pedido de memoria insatisfactorio, process file 2\n");
-      return 1;
-    }
-
-    /* numlines is the variable that holds the count of lines read */
-    *numlines = 0;
-
-    /* Reading each line until '\n' or EOF appears
-    */
-    while ((nread = getline(&line, &linesize, f)) != -1){
-        
-        char * string = (char *) malloc( sizeof(char) * (size_t) nread);
-        if(string == NULL )
-        {
-          fprintf(stderr,"Pedido de memoria insatisfactorio, process file 4\n");
-          return 1;
-        }
-        if( line[nread-1]=='\n') line[nread-1]='\0';
-        memcpy(string, line, nread * sizeof(char));
-
-        (*lineas)[*numlines] = string;
-        // printf("strlen: %zu\n",strlen(string));
-        (*numlines)++;
-               
-    }
-    fclose(f);
-
-    if(line) 
-      free(line);
-    return 0;
-}
-
-/* Function Name: save_file
-*  Arguments: 
-*             char * file     : Saving filename
-*             char * lineas [] : Array of strings
-*             size_t numLines: Number of lines read
-*             
-*  Notes: this function process the incoming file and creates the array.
-*/
-int save_file(char* file, char **lineas, size_t numLines, size_t *lineasLen){
-    FILE * f;
-    if(file == NULL || !strcmp(file,"-"))
-      f = stdout; /* compatibility with piping */
-    else
-      f = fopen (file,"w"); /* open the file for writing*/
-    if(f == NULL){
-      fprintf(stderr,"Error al grabar %s, %s\n", file, strerror(errno)); 
-      return(1);             
-    }
-    /* write numbers on the file stream*/
-    for(int j = 0; j<numLines ; j++)
-    {
-      fwrite(lineas[j],sizeof(char),lineasLen[j],f);
-      fprintf(f,"%s","\n");
-    }
-   /* close the file*/  
-   fclose (f);
-   return 0;
 }

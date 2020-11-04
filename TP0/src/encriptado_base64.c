@@ -18,14 +18,15 @@ char* construir_tabla_decodificadora() {
     char* tabla_decodificacion = malloc(256*sizeof(char));
 
     for (int i = 0; i < 64; i++){
-        tabla_decodificacion[(unsigned char) tabla_codificacion[i]] = i;
+        tabla_decodificacion[(unsigned char) tabla_codificacion[i]] = (char)i;
     }
     return tabla_decodificacion;
 }
 
 
-char *encriptar_base64(const unsigned char *texto,
+void encriptar_base64(const unsigned char *texto,
                     size_t tamanio_texto,
+                    char *cadena_encodeada,
                     size_t *tamanio_decodificacion) {
 
 	char tabla_codificacion[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -39,10 +40,9 @@ char *encriptar_base64(const unsigned char *texto,
 
 	int tabla_de_restos[] = {0, 2, 1};
 
-    *tamanio_decodificacion = 4 * ((tamanio_texto + 2) / 3);
+    *tamanio_decodificacion = (size_t) 4 * ((tamanio_texto + 2) / 3);
 
-    char *cadena_encodeada = malloc(*tamanio_decodificacion);
-    if (cadena_encodeada == NULL) return NULL;
+    if (cadena_encodeada == NULL) return;
 
     for (int i = 0, j = 0; i < tamanio_texto;) {
 
@@ -59,43 +59,40 @@ char *encriptar_base64(const unsigned char *texto,
     }
 
     for (int i = 0; i < tabla_de_restos[tamanio_texto % 3]; i++)
-        cadena_encodeada[*tamanio_decodificacion - 1 - i] = '=';
+        cadena_encodeada[*tamanio_decodificacion - 1 - (size_t)i] = '=';
 
-    return cadena_encodeada;
 }
 
 
-unsigned char *desencriptar_base64(const char *texto_encodeado,
+void desencriptar_base64(const char *texto_encodeado,
                              size_t longitud_encodeado,
-                             size_t *longitud_texto) {
+                             char *cadena_decodeada,
+                             size_t *longitud_decodeada) {
 
-	char* tabla_decodificacion=construir_tabla_decodificadora();
+	char* tabla_decodificacion = construir_tabla_decodificadora();
 
-    if (longitud_encodeado % 4 != 0) return NULL;
+    if (longitud_encodeado % 4 != 0) return;
 
-    *longitud_texto = longitud_encodeado / 4 * 3;
-    if (texto_encodeado[longitud_encodeado - 1] == '=') (*longitud_texto)--;
-    if (texto_encodeado[longitud_encodeado - 2] == '=') (*longitud_texto)--;
+    *longitud_decodeada = longitud_encodeado / 4 * 3;
+    if (texto_encodeado[longitud_encodeado - 1] == '=') (*longitud_decodeada)--;
+    if (texto_encodeado[longitud_encodeado - 2] == '=') (*longitud_decodeada)--;
 
-    unsigned char *decoded_data = malloc(*longitud_texto*sizeof(char));
-    if (decoded_data == NULL) return NULL;
+    if (cadena_decodeada == NULL) return;
 
     for (int i = 0, j = 0; i < longitud_encodeado;) {
 
-        uint32_t sextet_a = texto_encodeado[i] == '=' ? 0 & i++ : tabla_decodificacion[texto_encodeado[i++]];
-        uint32_t sextet_b = texto_encodeado[i] == '=' ? 0 & i++ : tabla_decodificacion[texto_encodeado[i++]];
-        uint32_t sextet_c = texto_encodeado[i] == '=' ? 0 & i++ : tabla_decodificacion[texto_encodeado[i++]];
-        uint32_t sextet_d = texto_encodeado[i] == '=' ? 0 & i++ : tabla_decodificacion[texto_encodeado[i++]];
+        uint32_t sextet_a = texto_encodeado[i] == '=' ? 0 & i++ : (uint32_t)tabla_decodificacion[(int)texto_encodeado[i++]];
+        uint32_t sextet_b = texto_encodeado[i] == '=' ? 0 & i++ : (uint32_t)tabla_decodificacion[(int)texto_encodeado[i++]];
+        uint32_t sextet_c = texto_encodeado[i] == '=' ? 0 & i++ : (uint32_t)tabla_decodificacion[(int)texto_encodeado[i++]];
+        uint32_t sextet_d = texto_encodeado[i] == '=' ? 0 & i++ : (uint32_t)tabla_decodificacion[(int)texto_encodeado[i++]];
 
         uint32_t triple = (sextet_a << 3 * 6)
         + (sextet_b << 2 * 6)
         + (sextet_c << 1 * 6)
         + (sextet_d << 0 * 6);
 
-        if (j < *longitud_texto) decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
-        if (j < *longitud_texto) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
-        if (j < *longitud_texto) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
+        if (j < *longitud_decodeada) cadena_decodeada[j++] = (char)((triple >> 2 * 8) & 0xFF);
+        if (j < *longitud_decodeada) cadena_decodeada[j++] = (char)((triple >> 1 * 8) & 0xFF);
+        if (j < *longitud_decodeada) cadena_decodeada[j++] = (char)((triple >> 0 * 8) & 0xFF);
     }
-
-    return decoded_data;
 }

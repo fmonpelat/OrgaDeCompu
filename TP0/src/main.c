@@ -41,7 +41,7 @@
 #include "../includes/encriptado_base64.h"
 
 #define BUF_SIZE 3
-#define BUF_BASE64 BUF_SIZE*2
+#define BUF_BASE64 4
 
 enum Options {INPUT, OUTPUT}; // filenameOptions
 
@@ -55,11 +55,12 @@ int main (int argc, char **argv)
   int getOpts = 0;           /* getOpts variable that holds the return status of getopts parser */
   FILE *f = NULL;
   FILE *fout = NULL;
-  char buf[BUF_SIZE+1]; // BUF_SIZE + 1 for '\n'
+  char buf[BUF_SIZE]; // BUF_SIZE + 1 for '\n'
   size_t bufsize = BUF_SIZE; // Buffer size
   char bufBase64[BUF_BASE64]; // buffer for encoded/decoded string
   size_t nread; // readed chars from stream
   size_t len; // length of decoded/encoded string
+  size_t longitud_encodeado=4;
 
   if( (getOpts = getOptsProcedure(argc,argv,filenameOptions,&decode)) == 1 )
     return 1;
@@ -69,14 +70,17 @@ int main (int argc, char **argv)
   if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f,&fout)!=true )
     return 1;
 
-  while( (nread = fread(buf, sizeof(char), bufsize, f)) >=1 ) {
-      if(decode==true)
-        desencriptar_base64(buf,nread,bufBase64,&len);
-      else
-        encriptar_base64((const unsigned char *)buf,nread,bufBase64,&len);
-      
-      /* write numbers on the file stream*/
-      fwrite(bufBase64,sizeof(char),len,fout);
+  if(decode==true){
+	  while( (nread = fread(bufBase64, sizeof(char), 4, f)) !=0 ) {
+		  desencriptar_base64(bufBase64,4,buf,&len);
+		  fwrite(buf,sizeof(char),len,fout);
+	  }
+  }
+  else{
+	  while( (nread = fread(buf, sizeof(char), 3, f)) !=0 ) {
+		  encriptar_base64((const unsigned char *)buf,nread,bufBase64,&len);
+		  fwrite(bufBase64,sizeof(char),len,fout);
+	  }
   }
    /* close the file*/  
   fclose(f);

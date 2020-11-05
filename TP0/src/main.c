@@ -71,7 +71,8 @@ int main (int argc, char **argv)
     return 1;
 
   if(decode==true){
-	  while( (nread = fread(bufBase64, sizeof(char), 4, f)) !=0 ) {
+	  while( (nread = fread(bufBase64, sizeof(char), 4, f)) > 1 ) {
+		 // printf("nread es %li",nread);
 		  desencriptar_base64(bufBase64,4,buf,&len);
 		  fwrite(buf,sizeof(char),len,fout);
 	  }

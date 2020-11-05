@@ -55,7 +55,7 @@ int main (int argc, char **argv)
   int getOpts = 0;           /* getOpts variable that holds the return status of getopts parser */
   FILE *f = NULL;
   FILE *fout = NULL;
-  char buf[BUF_SIZE]; // BUF_SIZE + 1 for '\n'
+  char buf[BUF_SIZE];
   size_t bufsize = BUF_SIZE; // Buffer size
   char bufBase64[BUF_BASE64]; // buffer for encoded/decoded string
   size_t nread; // readed chars from stream

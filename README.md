@@ -2,7 +2,7 @@
 =========
   # Trabajos Practicos
     * TP0: Infraestructura basica - Base 64
-    
+    * TP1: Algoritmo de Euclides
 
   ## Docker image Qemu MIPS
 

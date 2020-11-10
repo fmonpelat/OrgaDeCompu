@@ -5,12 +5,6 @@ void show_help();
 
 void show_version();
 
-bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **f_out);
-
-// int process_file(char* file, char ***lineas, size_t *numlines);
-
-// int save_file(char* file, char **lineas, size_t numLines, size_t *lineasLen);
-
-int getOptsProcedure(int argc,char ** argv,char * options[2], bool * decode);
+int getOptsProcedure(int argc,char ** argv,char * filename,int *nums,bool *divisor,bool *multiple);
 
 #endif /* __COMMON_H__ */

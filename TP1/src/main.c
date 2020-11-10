@@ -42,40 +42,34 @@
 #define BUF_SIZE 3
 #define BUF_BASE64 4
 
-enum Options {INPUT, OUTPUT};     // filenameOptions
+enum Options {OUTPUT};     // filenameOptions
 
 int main (int argc, char **argv)
 {
-  char * filenameOptions[2];      /* array that contains filenames from input and output */
-  filenameOptions[INPUT] = NULL;
-  filenameOptions[OUTPUT] = NULL;
-  bool decode = false;            /* Decode flag that activates decoding mode */
+  char * filenameOut = NULL;      /* filename output */
   int getOpts = 0;                /* getOpts variable that holds the return status of getopts parser */
-  FILE *f = NULL;
-  FILE *fout = NULL;
-  char buf[BUF_SIZE];
-  char bufBase64[BUF_BASE64];     // buffer for encoded/decoded string
-  size_t nread;                   // readed chars from stream
-  size_t len;                     // length of decoded/encoded string
+  int nums[2];
 
-  if( (getOpts = getOptsProcedure(argc,argv,filenameOptions,&decode)) == 1 )
+  bool divisor = false;            /* Divisor flag that activates divisor mode */
+  bool multiple = false;          /* Multiple flag that activates the multiple mode*/
+  
+  if( (getOpts = getOptsProcedure(argc,argv,filenameOut,nums,&divisor,&multiple)) == 1 )
     return 1;
   else if( getOpts == -1)
     return 0;
 
-  if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f,&fout)!=true )
-    return 1;
+  printf ("num1: %d\n",nums[0]);
+  printf ("num2: %d\n",nums[1]);
 
-  while( (nread = fread(bufBase64, sizeof(char), 4, f)) > 1 ) {
-    
-    // buf keeps the data from stdin
-    // TODO CALL ASM
-    fwrite(buf,sizeof(char),len,fout);
+  if(divisor)
+  {
+    // call divisor procedure to calculate in c
   }
- 
-   /* close the file */
-  fclose(f);
-  fclose(fout);
+  else
+  {
+    // call multiple procedure  
+  }
+
 
 
   /* SO return exit code
@@ -90,13 +84,15 @@ int main (int argc, char **argv)
 *             int argc
 *             int ** argv
 *             char * filenames[x] : Array of strings (char*) of size x
-*             bool * decode : Decoding flag instead of encoding (initially false)
+*             bool * divisor : Divisor flag
+*             bool * multiple: Multiple flag
 *  Notes: GetOpts Procedure of main program, please free up options array after using the procedure.
 */
-int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
+int getOptsProcedure(int argc,char ** argv,char * filename,int nums[2],bool *divisor,bool *multiple)
 {
   // initially decode is false
-  *decode = false;
+  *divisor = false;
+  *multiple = false;
 
   int c;
   while (1)
@@ -104,9 +100,10 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
       static struct option long_options[] =
         {
           /* These options set a flag. */
-          {"input", required_argument, 0, 'i'},
+          // {"input", required_argument, 0, 'i'},
           {"output", required_argument, 0, 'o'},
-          {"decode", no_argument, 0, 'd'},
+          {"divisor", no_argument, 0, 'd'},
+          {"multiple", no_argument, 0, 'm'},
           {"version", no_argument, 0, 'v'},
           {"help", no_argument, 0, 'h'},
           {0, 0, 0, 0}
@@ -114,7 +111,7 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
       /* getopt_long stores the option index here. */
       int option_index = 0;
 
-      c = getopt_long (argc, argv, "i:o:vhd", long_options, &option_index);
+      c = getopt_long (argc, argv, "o:vhdm", long_options, &option_index);
 
       /* Detect the end of the options. */
       if (c == -1)
@@ -122,12 +119,8 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
 
       switch (c)
       {
-        case 'i':
-          filenames[INPUT] = optarg;
-          break;
-
         case 'o':
-          filenames[OUTPUT] = optarg;
+          filename = optarg;
           break;
 
         case 'v':
@@ -141,7 +134,11 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
           break;
         
         case 'd':
-          *decode = true;
+          *divisor = true;
+          break;
+
+        case 'm':
+          *multiple = true;
           break;
 
         default:
@@ -155,10 +152,26 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
   /* Print any remaining command line arguments (not options). */
   if (optind < argc)
   {
-    printf ("Invalid option. Please add '-' before option: ");
+    // printf ("Invalid option. Please add '-' before option: ");
+    int idx=0;
+    int num;
     while (optind < argc)
-      printf ("%s ", argv[optind++]);
-    putchar ('\n');
+    {
+      //printf ("%s \n",argv[optind]);
+      num = atoi(argv[optind]);
+      if(idx>=2)
+      {
+        printf("only two arguments can be processed\n");
+        return 1;
+      }
+      if(num==0)
+      {
+        printf("the argument: %s is not numeric\n",argv[optind]);
+        return 1;
+      }
+      nums[idx++] = num;
+      optind++;
+    }
   }
   return 0;
 }
@@ -203,20 +216,20 @@ bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **
 */
 void show_help(){
     printf("Usage:\n");
-    printf("  tp0 -h\n");
-    printf("  tp0 -v\n");
-    printf("  tp0 -i in_file -o out_file\n");
+    printf("  tp1 256 192\n");
+    printf("  tp1 -h\n");
+    printf("  tp1 -v\n");
+    printf("  tp1 -o out_file\n");
     printf("Options:\n");
     printf("  -v, --version Print version and quit.\n");
     printf("  -h, --help Print this information and quit.\n");
-    printf("  -i, --input Specify input stream/file, '-' for stdin.\n");
     printf("  -o, --output Specify output stream/file, '-' for stdout.\n");
-    printf("  -d, --decode Decode from Base64 encoding.\n");
+    printf("  -d, --divisor Only show common divisor.\n");
+    printf("  -m, --multiple Only show common multiple.\n");
     printf("Examples:\n");
-    printf("  tp0 < in.txt > out.txt\n");
-    printf("  cat in.txt | tp1 -i - > out.txt\n");
-    printf("tp0 -i 'inputs/input.txt' -o 'output.txt' \n");
-
+    printf("  ./tp1 -d -o - 256 192\n");
+    printf("  ./tp1 common -m -o - 256 192\n");
+    // printf("tp0 -i 'inputs/input.txt' -o 'output.txt' \n");
 }
 
 /* Function Name: show_version 

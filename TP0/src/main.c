@@ -133,27 +133,10 @@ int getOptsProcedure(int argc,char ** argv,char * filenames[2],bool *decode)
       switch (c)
       {
         case 'i':
-          /* printf ("option -i with value `%s'\n", optarg); */
-          // if( !(input = (char*) malloc( sizeof(char) * strlen(optarg) + 1 )) )
-          // {
-          //   printf("Pedido de memoria insatisfactorio, getopts 1\n");
-          //   return 1;
-          // }
-          // strncpy (input, optarg, sizeof(char) * strlen(optarg) + 1);
-          // filenames[INPUT] = input;
           filenames[INPUT] = optarg;
           break;
 
         case 'o':
-          /* printf ("option -o with value `%s'\n", optarg); */
-          /* set output filename */
-          // if( !(output = (char*) malloc(sizeof(char)*strlen(optarg)+1)) )
-          // {
-          //   printf("Pedido de memoria insatisfactorio, getopts 2\n");
-          //   return 1;
-          // }
-          // strncpy (output, optarg, sizeof(char)*strlen(optarg)+1);
-          // filenames[OUTPUT] = output;
           filenames[OUTPUT] = optarg;
           break;
 

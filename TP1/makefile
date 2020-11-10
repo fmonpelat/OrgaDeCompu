@@ -4,10 +4,9 @@ CC=gcc
 DEBUG=gdb
 CFLAGS= -Wall -g -O3 -mabicalls -Wconversion -Wtype-limits -pedantic
 OUTFILE=binaries/tp1
-INPUT=input/input.txt
 OUTPUT=input/output.txt
 OBJ= binaries/tp1
-SOURCES=src/main.c
+SOURCES=src/main.c src/euclidean.c asm/asmEuclidean.S
 EXECUTABLE=main
 
 all: $(EXECUTABLE)
@@ -21,7 +20,7 @@ debug: all
 	stty sane
 
 debugasm: all
-	$(DEBUG) -ex 'tui enable' -ex 'break mergesort' -ex 'merge' -ex 'layout asm' -ex 'layout regs' --args $(OUTFILE) -i '$(INPUT)' -o '$(OUTPUT)'
+	$(DEBUG) -ex 'tui enable' -ex 'break asmMcd' -ex 'break asmMcm' -ex 'layout asm' -ex 'layout regs' --args $(OUTFILE) -i '$(INPUT)' -o '$(OUTPUT)'
 	stty sane
 
 test: all

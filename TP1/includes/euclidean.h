@@ -11,4 +11,4 @@ unsigned int mcd(unsigned int m, unsigned int n);
 
 unsigned int mcm(unsigned int m, unsigned int n);
 
-#endif
+#endif /* __EUCLIDEAN_H__ */

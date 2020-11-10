@@ -38,6 +38,8 @@
 #include <stdbool.h>
 #include <errno.h> /* File open errors */
 #include "../includes/common.h"
+#include "../includes/euclidean.h"
+#include "../includes/asmEuclidean.h"
 
 #define BUF_SIZE 3
 #define BUF_BASE64 4
@@ -58,16 +60,30 @@ int main (int argc, char **argv)
   else if( getOpts == -1)
     return 0;
 
-  printf ("num1: %d\n",nums[0]);
-  printf ("num2: %d\n",nums[1]);
+  // printf ("num1: %d\n",nums[0]);
+  // printf ("num2: %d\n",nums[1]);
 
   if(divisor)
   {
-    // call divisor procedure to calculate in c
+    // call divisor procedure to calculate in C
+    printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    // call divisor procedure to calculate in asm
+    //printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
+  }
+  else if(multiple)
+  {
+    // call multiple procedure to calculate in C
+    printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    // call multiple procedure to calculate in asm
+    //printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
   else
   {
-    // call multiple procedure  
+    // both 
+    printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    //printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    //printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
 
 
@@ -172,6 +188,12 @@ int getOptsProcedure(int argc,char ** argv,char * filename,int nums[2],bool *div
       nums[idx++] = num;
       optind++;
     }
+  }
+  else
+  {
+    printf("No arguments provided\n");
+    show_help();
+    return 1;
   }
   return 0;
 }

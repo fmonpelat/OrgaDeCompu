@@ -1,3 +1,9 @@
+/*
+* Header of C common
+* Notes: 
+* Date: 10/11/2020
+*/
+
 #ifndef __COMMON_H__
 #define __COMMON_H__
 

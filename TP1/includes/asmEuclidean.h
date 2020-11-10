@@ -11,4 +11,4 @@ extern void asmMcd(unsigned int m, unsigned int n);
 
 extern void asmMcm(unsigned int m, unsigned int n);
 
-#endif
+#endif /* __ASM_EUCLIDEAN_H__ */

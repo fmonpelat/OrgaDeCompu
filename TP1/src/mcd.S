@@ -1,4 +1,7 @@
-#include <mips/regdef.h>
+#include <sys/regdef.h>
+#include </usr/include/mips-linux-gnu/sys/regdef.h>
+#include </usr/include/mips-linux-gnu/sys/syscall.h>
+#include </usr/include/mips-linux-gnu/sys/asm.h>
 #define SS 40
 
 //SRA
@@ -12,6 +15,7 @@
 
 
 .text
+.align 2
 .ent mcd
 .globl mcd
 mcd:

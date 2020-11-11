@@ -20,7 +20,10 @@
 .ent asmMcd
 .globl asmMcd
 asmMcd:
-
+    .frame	fp, SS, ra
+	.set	noreorder
+	.cpload t9
+	.set	reorder
 // SRA
 	subu	sp, sp, SS
     .cprestore O_GP

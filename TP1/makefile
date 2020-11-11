@@ -16,11 +16,11 @@ main:
 	$(CC) $(CFLAGS) -o $(OBJ) $(SOURCES)
 
 debug: all
-	$(DEBUG) -ex 'tui enable' -ex 'break main' --args $(OUTFILE) -i '$(INPUT)' -o '$(OUTPUT)'
+	$(DEBUG) -ex 'tui enable' -ex 'break main' --args $(OUTFILE) 20 30
 	stty sane
 
 debugasm: all
-	$(DEBUG) -ex 'tui enable' -ex 'break asmMcd' -ex 'break asmMcm' -ex 'layout asm' -ex 'layout regs' --args $(OUTFILE) -i '$(INPUT)' -o '$(OUTPUT)'
+	$(DEBUG) -ex 'tui enable' -ex 'break asmMcd' -ex 'break asmMcm' -ex 'layout asm' -ex 'layout regs' --args $(OUTFILE) 20 30
 	stty sane
 
 test: all

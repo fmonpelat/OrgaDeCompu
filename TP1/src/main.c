@@ -66,22 +66,22 @@ int main (int argc, char **argv)
   if(divisor)
   {
     // call divisor procedure to calculate in C
-    printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    //printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
     // call divisor procedure to calculate in asm
     printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
   }
   else if(multiple)
   {
     // call multiple procedure to calculate in C
-    printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    //printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
     // call multiple procedure to calculate in asm
     printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
   else
   {
     // both 
-    printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
-    printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    //printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    //printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
     printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
     printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }

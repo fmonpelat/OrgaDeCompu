@@ -216,39 +216,6 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
 }
 
 
-/* Procedure Name: prepareStreams
-*  Arguments: 
-*             char *filenameinput  : Filename input char *
-*             char *filenameoutput : Filename output char *
-*             FILE **f_in          : FILE * for input stream
-*             FILE **f_out         : FILE * for output stream
-*  Notes: n/a
-*/
-bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **f_out)
-{
-  if( filenameinput==NULL || !strcmp(filenameinput,"-"))
-    *f_in = stdin; /* compatibility with piping */
-  else
-    *f_in = fopen(filenameinput, "r"); /* open from file */
-  if (*f_in==NULL)
-  {
-      fprintf(stderr,"%s\n",filenameinput);
-      fprintf(stderr,"Error al abrir el archivo '%s', %s\n", filenameinput, strerror(errno));
-      return false;
-  }
-
-  if(filenameoutput == NULL || !strcmp(filenameoutput,"-"))
-    *f_out = stdout; /* compatibility with piping */
-  else
-    *f_out = fopen (filenameoutput,"w"); /* open the file for writing*/
-  if(*f_out == NULL)
-  {
-    fprintf(stderr,"Error al grabar %s, %s\n", filenameoutput, strerror(errno)); 
-    return false;    
-  }
-  return true;
-}
-
 /* Function Name: show_help 
 *
 *  Notes: this function show the menu of help with all the options available

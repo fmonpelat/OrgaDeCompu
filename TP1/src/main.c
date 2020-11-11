@@ -51,43 +51,55 @@ int main (int argc, char **argv)
   char * filenameOut = NULL;      /* filename output */
   int getOpts = 0;                /* getOpts variable that holds the return status of getopts parser */
   int nums[2];
-
+  FILE * f;
   bool divisor = false;            /* Divisor flag that activates divisor mode */
   bool multiple = false;          /* Multiple flag that activates the multiple mode*/
   
-  if( (getOpts = getOptsProcedure(argc,argv,filenameOut,nums,&divisor,&multiple)) == 1 )
+  if( (getOpts = getOptsProcedure(argc,argv,&filenameOut,nums,&divisor,&multiple)) == 1 )
     return 1;
   else if( getOpts == -1)
     return 0;
 
-  // printf ("num1: %d\n",nums[0]);
-  // printf ("num2: %d\n",nums[1]);
+  if( filenameOut==NULL || !strcmp(filenameOut,"-") )
+  {
+    f = stdout; /* compatibility with piping */
+  }
+  else
+  {
+    f = fopen (filenameOut,"w"); /* open the file for writing*/
+    if(f == NULL)
+    {
+      fprintf(stderr,"Error al grabar %s, %s\n", filenameOut, strerror(errno)); 
+      return(1);             
+    }
+  }
+
+  printf("%d, %d\n",nums[0],nums[1]);
 
   if(divisor)
   {
     // call divisor procedure to calculate in C
-    //printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    //fprintf(f,"%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
     // call divisor procedure to calculate in asm
-    printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    fprintf(f,"%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
   }
   else if(multiple)
   {
     // call multiple procedure to calculate in C
-    //printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    //fprintf(f,"%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
     // call multiple procedure to calculate in asm
-    printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    fprintf(f,"%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
   else
   {
     // both 
-    //printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
-    //printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
-    printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
-    printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    //fprintf(f,"%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    //fprintf(f,"%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    fprintf(f,"%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    fprintf(f,"%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
 
-
-
+  fclose(f);
   /* SO return exit code
   */
   return 0;
@@ -99,12 +111,12 @@ int main (int argc, char **argv)
 *  Arguments: 
 *             int argc
 *             int ** argv
-*             char * filenames[x] : Array of strings (char*) of size x
+*             char * filename  : ouptut filename
 *             bool * divisor : Divisor flag
 *             bool * multiple: Multiple flag
-*  Notes: GetOpts Procedure of main program, please free up options array after using the procedure.
+*  Notes: GetOpts Procedure of main program.
 */
-int getOptsProcedure(int argc,char ** argv,char * filename,int nums[2],bool *divisor,bool *multiple)
+int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *divisor,bool *multiple)
 {
   // initially decode is false
   *divisor = false;
@@ -136,7 +148,7 @@ int getOptsProcedure(int argc,char ** argv,char * filename,int nums[2],bool *div
       switch (c)
       {
         case 'o':
-          filename = optarg;
+          *filename = optarg;
           break;
 
         case 'v':
@@ -180,9 +192,9 @@ int getOptsProcedure(int argc,char ** argv,char * filename,int nums[2],bool *div
         printf("only two arguments can be processed\n");
         return 1;
       }
-      if(num==0)
+      if(num<=0)
       {
-        printf("the argument: %s is not numeric\n",argv[optind]);
+        printf("the argument: %s cannot be processed\n",argv[optind]);
         return 1;
       }
       nums[idx++] = num;

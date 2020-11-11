@@ -11,6 +11,6 @@ void show_help();
 
 void show_version();
 
-int getOptsProcedure(int argc,char ** argv,char * filename,int *nums,bool *divisor,bool *multiple);
+int getOptsProcedure(int argc,char ** argv,char ** filename,int *nums,bool *divisor,bool *multiple);
 
 #endif /* __COMMON_H__ */

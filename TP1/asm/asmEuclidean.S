@@ -13,7 +13,7 @@
 #define O_I2 44
 #define O_I1 40
 
-
+//MODULO MCD
 .text
 .align 2
 .ent asmMcd
@@ -36,39 +36,44 @@ asmMcd:
 	sw		a0, O_I1(fp)
 	sw		a1, O_I2(fp)  
 
-    /* if (m == 0) */
+    
 
     lw      t0, O_I1(fp)       // t0 <-- m
-    lw      t3, O_I2(fp)
-    bgtz    t3, llamado_recursivo  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno
+    lw      t3, O_I2(fp)       // T3 <-- n
+
+    /* if (m == 0) */
+    bgtz    t3, llamado_recursivo  //Veo si t3 es mayor a 0, si es asi, salto a llamado_recursivo
 
 valor_retorno:
     /* Este valor sera el mcd de los parametros originales */
     /* return n */
     lw      v0, O_I1(fp)
     
-    b       L_RET
+    b       L_RET   
 
     /* return mcd(n % m, m) */
 
 llamado_recursivo:
 
-    lw      t1,O_I2(fp)     // t1 <-- n       
+    lw      t1,O_I2(fp)     // t1 <-- n 
+
+    /* n % m */      
     divu    t0, t1
     mfhi    t2
 
-    add     a1,t2,zero      //El primer parametro con el que voy a llamar a la funcion
-                            //sera n % m
+    /* Preparo argumentos para llamar a mcd nuevamente */
 
-    add     a0,t1,zero      //El segundo parametro con el que voy a llamar a la funcion
+    add     a0,t1,zero      //El primer parametro con el que voy a llamar a la funcion
                             //sera n
 
+    add     a1,t2,zero      //El segundo parametro con el que voy a llamar a la funcion
+                            //sera n % m
+
+    /* mcd(n % m,m) */
     jal     asmMcd             //Llamo recursivamente
 
     
-
-
-
+    /* Stack unwinding */
 L_RET:
     lw      fp, O_FP(sp)
     lw      gp, O_GP(sp)
@@ -79,6 +84,10 @@ L_RET:
 
 .end asmMcd
 
+
+
+
+//MODULO MCM
 .text
 .align 2
 .ent asmMcm
@@ -108,6 +117,7 @@ asmMcm:
     /* mcd(m,n) */
     jal     asmMcd              //El valor que me devuelve el modulo estara en v0
 
+
     lw      t0, O_I1(fp)       // t0 <-- m
     lw      t1, O_I2(fp)       //t1 <-- n
 
@@ -126,6 +136,7 @@ asmMcm:
 
     addiu   sp, sp, SS
     jr ra
+
 .end asmMcm
     
 

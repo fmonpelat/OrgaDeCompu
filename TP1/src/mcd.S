@@ -33,7 +33,7 @@ mcd:
 	sw		a0, O_I1(fp)
 	sw		a1, O_I2(fp)  
 
-    /* if (m == 0 */
+    /* if (m == 0) */
 
     lw      t0, 0_I1(fp)       // t0 <-- m
     beqz    t0, valor_retorno  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno

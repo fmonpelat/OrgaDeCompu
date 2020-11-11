@@ -60,7 +60,7 @@ valor_retorno:
     lw      v0, O_I2(fp)
     lw      fp, O_FP(sp)
     lw      gp, O_GP(sp)
-    lw      ra, O_RP(sp)
+    lw      ra, O_RA(sp)
 
     addiu   sp, sp, SS
     jr ra

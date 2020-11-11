@@ -1,13 +1,11 @@
-#include <sys/regdef.h>
-#include </usr/include/mips-linux-gnu/sys/regdef.h>
 #include </usr/include/mips-linux-gnu/sys/syscall.h>
 #include </usr/include/mips-linux-gnu/sys/asm.h>
 #define SS 40
 
 //SRA
-#define 0_RA 32
-#define 0_GP 28
-#define 0_FP 24
+#define O_RA 32
+#define O_GP 28
+#define O_FP 24
 
 //LTA
 #define O_I2 44
@@ -16,14 +14,17 @@
 
 .text
 .align 2
-.ent mcd
-.globl mcd
-mcd:
-
+.ent asmMcd
+.globl asmMcd
+asmMcd:
+    .frame	fp, SS, ra
+	.set	noreorder
+	.cpload t9
+	.set	reorder
 // SRA
 	subu	sp, sp, SS
-    .cprestore 0_GP
-    sw      ra, 0_RA(sp)  
+    .cprestore O_GP
+    sw      ra, O_RA(sp)  
 	sw		gp, O_GP(sp)
 	sw		fp, O_FP(sp)
 
@@ -35,38 +36,46 @@ mcd:
 
     /* if (m == 0) */
 
-    lw      t0, 0_I1(fp)       // t0 <-- m
-    beqz    t0, valor_retorno  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno
+    lw      t0, O_I1(fp)       // t0 <-- m
+    lw      t3, O_I2(fp)
+    bgtz    t3, llamado_recursivo  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno
+
+valor_retorno:
+    /* Este valor sera el mcd de los parametros originales */
+    /* return n */
+    lw      v0, O_I1(fp)
+    
+    b       L_RET
 
     /* return mcd(n % m, m) */
 
-    lw      t1,0_I2(fp)     // t1 <-- n
+llamado_recursivo:
 
-    div     t1, t0
+    lw      t1,O_I2(fp)     // t1 <-- n       
+    divu    t0, t1
     mfhi    t2
-    mflo    t3
-   // rem     t2,t1,t0         t2 <-- n % m
 
-    add     a0,t2,zero      //El primer parametro con el que voy a llamar a la funcion
+    add     a1,t2,zero      //El primer parametro con el que voy a llamar a la funcion
                             //sera n % m
 
-    add     a1,t1,zero      //El segundo parametro con el que voy a llamar a la funcion
+    add     a0,t1,zero      //El segundo parametro con el que voy a llamar a la funcion
                             //sera n
 
-    jal     mcd             //Llamo recursivamente
+    jal     asmMcd             //Llamo recursivamente
 
-    /* return n */
-valor_retorno:
-    /* Este valor sera el mcd de los parametros originales */
-    lw      v0, 0_I2(fp)
-    lw      fp, 0_FP(sp)
-    lw      gp, 0_GP(sp)
-    lw      ra, 0_RA(sp)
+    
+
+
+
+L_RET:
+    lw      fp, O_FP(sp)
+    lw      gp, O_GP(sp)
+    lw      ra, O_RA(sp)
 
     addiu   sp, sp, SS
     jr ra
 
-.end mcd
+.end asmMcd
 
 
 

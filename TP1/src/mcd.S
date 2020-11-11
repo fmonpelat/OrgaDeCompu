@@ -33,8 +33,8 @@ mcd:
 	sw		a0, O_I1(fp)
 	sw		a1, O_I2(fp)  
 
-    lw      t0,0_I1(fp)       // t0 <-- m
-    beqz    t0,valor_retorno  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno
+    lw      t0, 0_I1(fp)       // t0 <-- m
+    beqz    t0, valor_retorno  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno
 
     lw      t1,0_I2(fp)     // t1 <-- n
     rem     t2,t1,t0        // t2 <-- n % m
@@ -48,10 +48,17 @@ mcd:
     jal     mcd             //Llamo recursivamente
 
 
-
 valor_retorno:
     /* Este valor sera el mcd de los parametros originales */
-    lw      v0,
+    lw      v0, 0_I2(fp)
+    lw      fp, 0_FP(sp)
+    lw      gp, 0_GP(sp)
+    lw      ra, 0_RP(sp)
+
+    addiu   sp, sp, SS
+    jr ra
+
+.end mcd
 
 
 

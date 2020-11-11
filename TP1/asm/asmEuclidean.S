@@ -90,8 +90,10 @@ asmMcm:
 	.set	noreorder
 	.cpload t9
 	.set	reorder
-// SRA
+
 	subu	sp, sp, SS
+
+    /* SRA */
     .cprestore O_GP
     sw      ra, O_RA(sp)  
 	sw		gp, O_GP(sp)
@@ -99,23 +101,25 @@ asmMcm:
 
 	move	fp, sp
 
-	// Guardo argumentos
+	// Guardo argumentos m y n
 	sw		a0, O_I1(fp)   //m
 	sw		a1, O_I2(fp)   //n
 
-    jal     asmMcd
+    /* mcd(m,n) */
+    jal     asmMcd              //El valor que me devuelve el modulo estara en v0
 
     lw      t0, O_I1(fp)       // t0 <-- m
-    lw      t1, O_I2(fp)
+    lw      t1, O_I2(fp)       //t1 <-- n
 
+    /*  m*n  */
     mult    t0,t1
     mflo    t2
-
+    
+    /* m*n/mcd(m,n) */
     div     t2,v0
-    mflo    v0
+    mflo    v0                  //Guardo el valor a retornar por la funcion en v0
 
-    //lw      v0,t3
-
+    /* Stack unwinding */
     lw      fp, O_FP(sp)
     lw      gp, O_GP(sp)
     lw      ra, O_RA(sp)

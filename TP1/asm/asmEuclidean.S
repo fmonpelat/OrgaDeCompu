@@ -45,7 +45,7 @@ asmMcd:
     /* return mcd(n % m, m) */
 
     lw      t1,O_I2(fp)     // t1 <-- n       
-    divu    t1, t0
+    divu    t0, t1
     mfhi    t2
     mflo    t3
 

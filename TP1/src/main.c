@@ -188,6 +188,13 @@ int getOptsProcedure(int argc,char ** argv,char * filename,int nums[2],bool *div
       nums[idx++] = num;
       optind++;
     }
+    // fix first number must be less than second for mcd/mdm (swap nums[0] and nums[1])
+    if(nums[0]>nums[1])
+    {
+      int aux = nums[0];
+      nums[0] = nums[1];
+      nums[0] = aux; 
+    }
   }
   else
   {

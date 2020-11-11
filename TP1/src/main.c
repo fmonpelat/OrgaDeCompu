@@ -75,7 +75,7 @@ int main (int argc, char **argv)
     // call multiple procedure to calculate in C
     printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
     // call multiple procedure to calculate in asm
-   // printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
   else
   {
@@ -83,7 +83,7 @@ int main (int argc, char **argv)
     printf("%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
     printf("%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
     printf("%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
-    //printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    printf("%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
   }
 
 

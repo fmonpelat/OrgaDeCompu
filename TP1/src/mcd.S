@@ -63,10 +63,6 @@ llamado_recursivo:
 
     jal     asmMcd             //Llamo recursivamente
 
-    
-
-
-
 L_RET:
     lw      fp, O_FP(sp)
     lw      gp, O_GP(sp)

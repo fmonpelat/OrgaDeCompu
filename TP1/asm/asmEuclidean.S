@@ -79,3 +79,50 @@ L_RET:
 
 .end asmMcd
 
+.text
+.align 2
+.ent asmMcm
+.globl asmMcm
+.extern asmMcd
+asmMcm:
+
+    .frame	fp, SS, ra
+	.set	noreorder
+	.cpload t9
+	.set	reorder
+// SRA
+	subu	sp, sp, SS
+    .cprestore O_GP
+    sw      ra, O_RA(sp)  
+	sw		gp, O_GP(sp)
+	sw		fp, O_FP(sp)
+
+	move	fp, sp
+
+	// Guardo argumentos
+	sw		a0, O_I1(fp)   //m
+	sw		a1, O_I2(fp)   //n
+
+    jal     asmMcd
+
+    lw      t0, O_I1(fp)       // t0 <-- m
+    lw      t1, O_I2(fp)
+
+    mult    t0,t1
+    mflo    t2
+
+    div     t2,v0
+    mflo    v0
+
+    //lw      v0,t3
+
+    lw      fp, O_FP(sp)
+    lw      gp, O_GP(sp)
+    lw      ra, O_RA(sp)
+
+    addiu   sp, sp, SS
+    jr ra
+.end asmMcm
+    
+
+

@@ -267,7 +267,7 @@ void show_help(){
     printf("  -m, --multiple Only show common multiple.\n");
     printf("Examples:\n");
     printf("  ./tp1 -d -o - 256 192\n");
-    printf("  ./tp1 common -m -o - 256 192\n");
+    printf("  ./tp1 -m -o - 256 192\n");
     // printf("tp0 -i 'inputs/input.txt' -o 'output.txt' \n");
 }
 

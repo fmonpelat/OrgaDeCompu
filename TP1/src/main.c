@@ -74,8 +74,6 @@ int main (int argc, char **argv)
     }
   }
 
-  printf("%d, %d\n",nums[0],nums[1]);
-
   if(divisor)
   {
     // call divisor procedure to calculate in C

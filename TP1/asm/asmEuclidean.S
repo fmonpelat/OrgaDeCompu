@@ -63,5 +63,5 @@ valor_retorno:
     addiu   sp, sp, SS
     jr ra
 
-.end mcd
+.end asmMcd
 

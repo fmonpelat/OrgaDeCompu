@@ -39,12 +39,15 @@ asmMcd:
     /* if (m == 0) */
 
     lw      t0, O_I1(fp)       // t0 <-- m
+   // lw      t3, O_I2(fp)
     beqz    t0, valor_retorno  //Veo si t0 es igual a 0, si es asi, salto a valor_retorno
 
     /* return mcd(n % m, m) */
 
-    lw      t1,O_I2(fp)     // t1 <-- n
-    rem     t2,t1,t0        // t2 <-- n % m
+    lw      t1,O_I2(fp)     // t1 <-- n       
+    divu    t1, t0
+    mfhi    t2
+    mflo    t3
 
     add     a0,t2,zero      //El primer parametro con el que voy a llamar a la funcion
                             //sera n % m
@@ -52,11 +55,12 @@ asmMcd:
     add     a1,t1,zero      //El segundo parametro con el que voy a llamar a la funcion
                             //sera n
 
-    jal     mcd             //Llamo recursivamente
+    jal     asmMcd             //Llamo recursivamente
 
-    /* return n */
+    
 valor_retorno:
     /* Este valor sera el mcd de los parametros originales */
+    /* return n */
     lw      v0, O_I2(fp)
     lw      fp, O_FP(sp)
     lw      gp, O_GP(sp)

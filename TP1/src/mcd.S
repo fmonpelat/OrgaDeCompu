@@ -41,7 +41,11 @@ mcd:
     /* return mcd(n % m, m) */
 
     lw      t1,0_I2(fp)     // t1 <-- n
-    rem     t2,t1,t0        // t2 <-- n % m
+
+    div     t1, t0
+    mfhi    t2
+    mflo    t3
+   // rem     t2,t1,t0         t2 <-- n % m
 
     add     a0,t2,zero      //El primer parametro con el que voy a llamar a la funcion
                             //sera n % m

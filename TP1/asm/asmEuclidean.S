@@ -1,5 +1,4 @@
 #include <sys/regdef.h>
-#include "../includes/asmEuclidean.h"
 #include </usr/include/mips-linux-gnu/sys/regdef.h>
 #include </usr/include/mips-linux-gnu/sys/syscall.h>
 #include </usr/include/mips-linux-gnu/sys/asm.h>

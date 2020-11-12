@@ -184,6 +184,7 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
     long lnum;
     int num;
     char *end;
+    errno = 0;
     while (optind < argc)
     {
       //printf ("%s \n",argv[optind]);

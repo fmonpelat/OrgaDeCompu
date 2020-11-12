@@ -42,8 +42,7 @@
 #include "../includes/euclidean.h"
 #include "../includes/asmEuclidean.h"
 
-#define BUF_SIZE 3
-#define BUF_BASE64 4
+#define MIN_VALUE 2
 
 enum Options {OUTPUT};     // filenameOptions
 
@@ -117,7 +116,6 @@ int main (int argc, char **argv)
 */
 int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *divisor,bool *multiple)
 {
-  // initially decode is false
   *divisor = false;
   *multiple = false;
 
@@ -179,7 +177,6 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
   /* Print any remaining command line arguments (not options). */
   if (optind < argc)
   {
-    // printf ("Invalid option. Please add '-' before option: ");
     int idx=0;
     long lnum;
     int num;
@@ -187,9 +184,6 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
     errno = 0;
     while (optind < argc)
     {
-      //printf ("%s \n",argv[optind]);
-      // num = atoi(argv[optind]);
-
       lnum = strtol(argv[optind], &end, 10);
       if (end == argv[optind])
       {
@@ -197,15 +191,15 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
         return 1;
       }
       //If sizeof(int) == sizeof(long), we have to explicitly check for overflows
-      if ((lnum == LONG_MAX || lnum == LONG_MIN) && errno == ERANGE)  
+      if ((lnum == ULONG_MAX || lnum == MIN_VALUE) && errno == ERANGE)  
       {
-        fprintf(stderr, "ERROR: number out of range for LONG\n");
+        fprintf(stderr, "ERROR: number out of range\n");
         return 1;
       }
       //Because strtol produces a long, check for overflow
-      if ( (lnum > INT_MAX) || (lnum < INT_MIN) )
+      if ( (lnum > UINT_MAX) || (lnum < MIN_VALUE) )
       {
-        fprintf(stderr, "ERROR: number out of range for INT\n");
+        fprintf(stderr, "ERROR: number out of range\n");
         return 1;
       }
 

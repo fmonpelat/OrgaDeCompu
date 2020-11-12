@@ -180,19 +180,37 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
   {
     // printf ("Invalid option. Please add '-' before option: ");
     int idx=0;
+    long lnum;
     int num;
+    char *end;
     while (optind < argc)
     {
       //printf ("%s \n",argv[optind]);
-      num = atoi(argv[optind]);
-      if(idx>=2)
+      // num = atoi(argv[optind]);
+
+      lnum = strtol(argv[optind], &end, 10);
+      if (end == argv[optind])
       {
-        printf("only two arguments can be processed\n");
+        fprintf(stderr, "ERROR: can't convert string to number\n");
         return 1;
       }
-      if(num<=0)
+      if ((lnum == LONG_MAX || lnum == LONG_MIN) && errno == ERANGE)  
       {
-        printf("the argument: %s cannot be processed\n",argv[optind]);
+        fprintf(stderr, "ERROR: number out of range for LONG\n");
+        return 1;
+      }
+      //Because strtol produces a long, check for overflow
+      if ( (lnum > INT_MAX) || (lnum < INT_MIN) )
+      {
+        fprintf(stderr, "ERROR: number out of range for INT\n");
+        return 1;
+      }
+
+      num = (int) lnum;
+
+      if(idx>=2)
+      {
+        printf("ERROR: only two arguments can be processed\n");
         return 1;
       }
       nums[idx++] = num;

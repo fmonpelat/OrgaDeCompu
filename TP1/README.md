@@ -4,4 +4,4 @@
 
 ### Objetivos
 
-Familiarizarse con el conjunto de instrucciones MIPS32 y el concepto de ABI1, escribiendo un programa portable que resuelva el problema descripto en la seccion 5.
+Familiarizarse con el conjunto de instrucciones MIPS32 y el concepto de ABI1, escribiendo un programa portable que resuelva el Algoritmo de Euclides.

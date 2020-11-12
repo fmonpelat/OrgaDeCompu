@@ -196,6 +196,7 @@ int getOptsProcedure(int argc,char ** argv,char ** filename,int nums[2],bool *di
         fprintf(stderr, "ERROR: can't convert string to number\n");
         return 1;
       }
+      //If sizeof(int) == sizeof(long), we have to explicitly check for overflows
       if ((lnum == LONG_MAX || lnum == LONG_MIN) && errno == ERANGE)  
       {
         fprintf(stderr, "ERROR: number out of range for LONG\n");

@@ -37,6 +37,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <errno.h> /* File open errors */
+#include <limits.h>
 #include "../includes/common.h"
 #include "../includes/euclidean.h"
 #include "../includes/asmEuclidean.h"

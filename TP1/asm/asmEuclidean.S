@@ -2,16 +2,20 @@
 #include </usr/include/mips-linux-gnu/sys/regdef.h>
 #include </usr/include/mips-linux-gnu/sys/syscall.h>
 #include </usr/include/mips-linux-gnu/sys/asm.h>
-#define SS 40
+
+#define SS 32
 
 //SRA
-#define O_RA 32
-#define O_GP 28
-#define O_FP 24
+
+#define O_RA 24
+#define O_GP 20
+#define O_FP 16
 
 //LTA
-#define O_I2 44
-#define O_I1 40
+
+#define O_I2 36
+#define O_I1 32
+
 
 //MODULO MCD
 .text

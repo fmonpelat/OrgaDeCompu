@@ -5,23 +5,23 @@
 #include <stdint.h>
 
 typedef struct block{
-    size_t bit_v;
-    size_t bit_d;
-    size_t tag;
+    int bit_v;
+    int bit_d;
+    int tag;
 }block_t;
 
 typedef struct cache{
-    size_t total_hits;
-    size_t total_misses;
-    size_t number_of_ways;
-    size_t cache_size;
-    size_t block_size;
-    size_t number_of_sets;
-    size_t blocks_per_set;
+    int total_hits;
+    int total_misses;
+    int number_of_ways;
+    int cache_size;
+    int block_size;
+    int number_of_sets;
+    int blocks_per_set;
 }cache_t;
 
 
-
+int get_blocks_per_set();
 
 void init();
 

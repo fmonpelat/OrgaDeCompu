@@ -8,6 +8,7 @@ typedef struct block{
     int bit_v;
     int bit_d;
     int tag;
+    unsigned char* data;
 }block_t;
 
 typedef struct cache{
@@ -18,6 +19,8 @@ typedef struct cache{
     int block_size;
     int number_of_sets;
     int blocks_per_set;
+    int offset_bits;
+    block_t** cache_blocks;
 }cache_t;
 
 

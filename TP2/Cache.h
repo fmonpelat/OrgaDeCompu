@@ -8,6 +8,7 @@ typedef struct block{
     int bit_v;
     int bit_d;
     int tag;
+    int last_access; //Sirve para usar el algoritmo de lru
     unsigned char* data;
 }block_t;
 

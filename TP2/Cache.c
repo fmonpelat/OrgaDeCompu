@@ -3,6 +3,10 @@
 #include <math.h>
 
 cache_t cache;
+#define MEMORY_RAM_SIZE 65536
+typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
+memory_ram_t memory_ram;
+unsigned int number_of_access;
 
 void init(){
     printf("block size es %i \n",cache.block_size);
@@ -19,6 +23,7 @@ void init(){
             cache.cache_blocks[i][j].data=NULL;
             cache.cache_blocks[i][j].bit_d=0;
             cache.cache_blocks[i][j].bit_v=0;
+            cache.cache_blocks[i][j].last_access=0;
         }
     }
 
@@ -30,9 +35,24 @@ unsigned int find_set(unsigned int address){
 	return address;
 }
 
+unsigned int find_lru(int setnum){
+    unsigned int min=cache.cache_blocks[setnum][0].last_access;
+    unsigned int less_used_block=0;
+
+    for(int i=0;i<cache.number_of_ways;i++){
+        if(min>cache.cache_blocks[setnum][i].last_access){
+            min=cache.cache_blocks[setnum][i].last_access;
+            less_used_block=i;
+        }
+    }
+    return less_used_block;
+}
+
 unsigned int is_dirty(int way, int setnum){
     return cache.cache_blocks[setnum][way].bit_d;
 }
+
+void read_block(int blocknum);
 
 int get_blocks_per_set(){
     return cache.blocks_per_set;
@@ -43,7 +63,7 @@ int get_offset_bits(){
 }
 
 int main(int argc,char* argv[]){
-
+    number_of_access=0;
     cache.block_size=32;
     cache.number_of_ways=4;
     cache.cache_size=4096;
@@ -54,7 +74,8 @@ int main(int argc,char* argv[]){
     printf("El set es %i \n",set);
     unsigned int dirty_test=is_dirty(1,2);
     printf("Dirty es %i \n",dirty_test);
-
+    *(memory_ram+2)='a';
+    printf("Memory ram %c \n",memory_ram[2]);
     return 0;
 }
 

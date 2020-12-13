@@ -22,8 +22,10 @@ void init(){
 
 }
 
-unsigned int find_set(int address){
-
+unsigned int find_set(unsigned int address){
+    address=address >> cache.offset_bits;
+    address=address%cache.number_of_sets;
+	return address;
 }
 
 int get_blocks_per_set(){
@@ -36,12 +38,14 @@ int get_offset_bits(){
 
 int main(int argc,char* argv[]){
 
-    cache.block_size=256;
+    cache.block_size=32;
     cache.number_of_ways=4;
     cache.cache_size=4096;
     init();
     int tam=get_offset_bits();
     printf("La cantidad de bits de offset es %i \n",tam);
+    unsigned int set=find_set(45);
+    printf("El set es %i \n",set);
 
     return 0;
 }

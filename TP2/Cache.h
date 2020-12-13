@@ -30,7 +30,7 @@ void init();
 
 /* debe devolver el conjunto de
 caché al que mapea la dirección address.*/
-unsigned int find_set(int address);
+unsigned int find_set(unsigned int address);
 
 /* debe devolver el bloque menos re-
 cientemente usado dentro de un conjunto (o alguno de ellos si hay más
@@ -56,13 +56,13 @@ void write_block(int way, int setnum);
 /* debe retornar el valor correspondien-
 te a la posición de memoria address, buscándolo primero en el caché. */
 
-char read_byte(int address);
+char read_byte(unsigned int address);
 
 /* debe escribir el
 valor value en la posición correcta del bloque que corresponde a
 address.*/
 
-void write_byte(int address, char value);
+void write_byte(unsigned int address, char value);
 
 /* debe devolver el porcentaje de misses
 desde que se inicializó el cache.*/

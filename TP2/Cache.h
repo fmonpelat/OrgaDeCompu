@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+
 typedef struct block{
     int bit_v;
     int bit_d;

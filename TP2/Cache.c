@@ -2,12 +2,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#define BYTES_FOR_CHAR 8
 
 cache_t cache;
 #define MEMORY_RAM_SIZE 65536
 typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
 memory_ram_t memory_ram;
 unsigned int number_of_access;
+
+
+int block_size_global=0;
 
 
 /* Funciones auxiliares */
@@ -41,14 +45,16 @@ void init(){
     for(int i=0;i<cache.number_of_sets;i++){
         cache.cache_blocks[i]=malloc(sizeof(block_t)*cache.number_of_ways);
         for(int j=0;j< cache.number_of_ways;j++){
-            cache.cache_blocks[i][j].data=malloc(sizeof(unsigned char)*cache.block_size);
-            cache.cache_blocks[i][j].data=NULL;
+            cache.cache_blocks[i][j].data=malloc(sizeof(unsigned char)*cache.block_size/BYTES_FOR_CHAR);
+            //unsigned char* cadena=malloc(sizeof(char)*4);
+            //cadena="hola";
+            //memcpy(cache.cache_blocks[i][j].data,cadena,4);
+           // cache.cache_blocks[i][j].data=NULL;
             cache.cache_blocks[i][j].bit_d=0;
             cache.cache_blocks[i][j].bit_v=0;
             cache.cache_blocks[i][j].last_access=0;
         }
     }
-
 }
 
 unsigned int find_set(unsigned int address){
@@ -80,7 +86,9 @@ void read_block(int blocknum){
     unsigned int way=find_lru(set);
    // unsigned int index_bits=log(cache.number_of_sets)/log(2);
     unsigned int tag= blocknum >> cache.index_bits;
-    unsigned int first_address= blocknum << cache.offset_bits;
+    unsigned int first_address= (blocknum << cache.offset_bits);
+    unsigned int bytes_for_word=cache.block_size/8;
+    unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     number_of_access++;
 
     cache.cache_blocks[set][way].tag=tag;
@@ -89,7 +97,27 @@ void read_block(int blocknum){
     //Copio en memoria cache el contenido de memoria ram, desde el bloque dado tomando 0 bits
     // de offset, copiando la totalidad de bytes dada por el tamaño de bloque
     printf("Set a escribir es %i , way es %i \n",set,way);
-    memcpy(cache.cache_blocks[set][way].data, &memory_ram[first_address], cache.block_size);
+    printf("tag es %i",tag);
+    unsigned int j=0;
+    unsigned char data_to_copy[bytes_for_word];
+   // memcpy()
+    for(int i=first_address_byte;i<first_address_byte+bytes_for_word;i++){
+        printf("En memoria el caracter a copiar es %c \n",memory_ram[i]);
+        data_to_copy[j]=memory_ram[i];
+        //cache.cache_blocks[set][way].data[j]=memory_ram[i];
+        j++;
+    }
+    data_to_copy[j]='\0';
+    printf("Data to copy es %s \n",data_to_copy);
+    unsigned char* cadena=malloc(sizeof(char)*4);
+    cadena="hola";
+    unsigned char* cadena2=malloc(sizeof(char)*4);
+    memcpy(cadena2,cadena,4);
+    memcpy(cache.cache_blocks[set][way].data,cadena,4);
+    printf("Data to copy es %s \n",cache.cache_blocks[3][0].data);
+   // cache.cache_blocks[set][way].data=data_to_copy;
+    //printf("Data to copy es %s \n",cache.cache_blocks[3][0].data);
+   // memcpy(cache.cache_blocks[set][way].data, &memory_ram[first_address_byte], bytes_for_word);
 
 }
 
@@ -97,7 +125,7 @@ void read_block(int blocknum){
 void write_block(int way, int setnum){
 
     unsigned int number_of_block=(cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
-    memcpy(&memory_ram[number_of_block << cache.offset_bits], \
+    //memcpy(&memory_ram[number_of_block << cache.offset_bits], \
     cache.cache_blocks[setnum][way].data, cache.block_size);
 }
 
@@ -105,6 +133,7 @@ void write_block(int way, int setnum){
 
 int main(int argc,char* argv[]){
     number_of_access=0;
+    block_size_global=32;
     cache.block_size=32;
     cache.number_of_ways=4;
     cache.cache_size=4096;
@@ -119,8 +148,9 @@ int main(int argc,char* argv[]){
     *(memory_ram+9)='o';
     *(memory_ram+10)='l';
     *(memory_ram+11)='a';
+   // cache.cache_blocks[3][0].data="hola";
     read_block(3);
-    printf("lo que se escribio en cache es %s \n",cache.cache_blocks[2][0].data );
+    printf("lo que se escribio en cache es %s \n",cache.cache_blocks[3][0].data);
     return 0;
 }
 

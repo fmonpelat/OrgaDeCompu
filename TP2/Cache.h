@@ -8,7 +8,7 @@ typedef struct block{
     size_t bit_v;
     size_t bit_d;
     size_t tag;
-};
+}block_t;
 
 typedef struct cache{
     size_t total_hits;
@@ -16,7 +16,9 @@ typedef struct cache{
     size_t number_of_ways;
     size_t cache_size;
     size_t block_size;
-};
+    size_t number_of_sets;
+    size_t blocks_per_set;
+}cache_t;
 
 
 

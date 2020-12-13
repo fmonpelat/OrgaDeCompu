@@ -1,8 +1,25 @@
+#ifndef CACHE_H
+#define CACHE_H
 #include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
+
+typedef struct block{
+    size_t bit_v;
+    size_t bit_d;
+    size_t tag;
+};
+
+typedef struct cache{
+    size_t total_hits;
+    size_t total_misses;
+    size_t number_of_ways;
+    size_t cache_size;
+    size_t block_size;
+};
 
 
-/*Debe inicializar los bloques de la caché como inváli-
-dos, la memoria simulada en 0 y la tasa de misses a 0.*/
+
 
 void init();
 
@@ -46,3 +63,5 @@ void write_byte(int address, char value);
 desde que se inicializó el cache.*/
 
 int get_miss_rate();
+
+#endif

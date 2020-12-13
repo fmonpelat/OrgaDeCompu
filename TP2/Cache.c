@@ -17,6 +17,8 @@ void init(){
         for(int j=0;j< cache.number_of_ways;j++){
             cache.cache_blocks[i][j].data=malloc(sizeof(unsigned char)*cache.block_size);
             cache.cache_blocks[i][j].data=NULL;
+            cache.cache_blocks[i][j].bit_d=0;
+            cache.cache_blocks[i][j].bit_v=0;
         }
     }
 
@@ -26,6 +28,10 @@ unsigned int find_set(unsigned int address){
     address=address >> cache.offset_bits;
     address=address%cache.number_of_sets;
 	return address;
+}
+
+unsigned int is_dirty(int way, int setnum){
+    return cache.cache_blocks[setnum][way].bit_d;
 }
 
 int get_blocks_per_set(){
@@ -46,6 +52,8 @@ int main(int argc,char* argv[]){
     printf("La cantidad de bits de offset es %i \n",tam);
     unsigned int set=find_set(45);
     printf("El set es %i \n",set);
+    unsigned int dirty_test=is_dirty(1,2);
+    printf("Dirty es %i \n",dirty_test);
 
     return 0;
 }

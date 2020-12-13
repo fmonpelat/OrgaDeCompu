@@ -102,9 +102,33 @@ void read_block(int blocknum){
 void write_block(int way, int setnum){
 
     unsigned int number_of_block=(cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
-    printf("Number of block es %i \n",number_of_block);
-    //memcpy(&memory_ram[number_of_block << cache.offset_bits], \
+    unsigned int first_address= (number_of_block << cache.offset_bits);
+    unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
+    unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
+    printf("Number of block es %i \n",first_address_byte);
+    memcpy(&memory_ram[first_address_byte], \
     cache.cache_blocks[setnum][way].data, cache.block_size);
+}
+
+unsigned int find_way(unsigned int tag,unsigned int set){
+    block_t* block_in_set=cache.cache_blocks[set];
+    for (int i = 0; i < cache.number_of_ways; i++) {
+        //Veo si algun bloque del conjunto tiene ese mismo tag y el bit
+        //de valido en 1. Si es asi, devuelvo la via en la que se encuentra
+		if (block_in_set[i].tag == tag && block_in_set[i].bit_v) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+void write_byte(unsigned int address, unsigned char value){
+    unsigned int tag=get_tag(address);
+    unsigned int set=find_set(address);
+    unsigned int way=find_way(tag,set);
+    printf("El set de %i es %i \n",address,set);
+    printf("El tag de %i es %i \n",address,tag);
+    printf("Way es %i \n",way);
 }
 
 void pruebas(){
@@ -131,6 +155,12 @@ int main(int argc,char* argv[]){
     cache.number_of_ways=4;
     cache.cache_size=4096;
     pruebas();
+    write_byte(96,'b');
+    write_byte(0,'a');
+    write_byte(4,'a');
+    write_byte(33,'c');
+    write_byte(1231,'c');
+    write_byte(16384,'b');
 
     return 0;
 }

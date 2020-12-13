@@ -65,7 +65,7 @@ char read_byte(unsigned int address);
 valor value en la posición correcta del bloque que corresponde a
 address.*/
 
-void write_byte(unsigned int address, char value);
+void write_byte(unsigned int address,unsigned char value);
 
 /* debe devolver el porcentaje de misses
 desde que se inicializó el cache.*/

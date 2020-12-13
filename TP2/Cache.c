@@ -102,6 +102,7 @@ void read_block(int blocknum){
 void write_block(int way, int setnum){
 
     unsigned int number_of_block=(cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
+    printf("Number of block es %i \n",number_of_block);
     //memcpy(&memory_ram[number_of_block << cache.offset_bits], \
     cache.cache_blocks[setnum][way].data, cache.block_size);
 }
@@ -120,6 +121,7 @@ void pruebas(){
     *(memory_ram+11)='a';
     read_block(3);
     printf("lo que se escribio en cache es %s \n",cache.cache_blocks[3][0].data);
+    write_block(0,3);
 }
 
 int main(int argc,char* argv[]){

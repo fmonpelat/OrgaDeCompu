@@ -46,10 +46,6 @@ void init(){
         cache.cache_blocks[i]=malloc(sizeof(block_t)*cache.number_of_ways);
         for(int j=0;j< cache.number_of_ways;j++){
             cache.cache_blocks[i][j].data=malloc(sizeof(unsigned char)*cache.block_size/BYTES_FOR_CHAR);
-            //unsigned char* cadena=malloc(sizeof(char)*4);
-            //cadena="hola";
-            //memcpy(cache.cache_blocks[i][j].data,cadena,4);
-           // cache.cache_blocks[i][j].data=NULL;
             cache.cache_blocks[i][j].bit_d=0;
             cache.cache_blocks[i][j].bit_v=0;
             cache.cache_blocks[i][j].last_access=0;
@@ -101,6 +97,7 @@ void read_block(int blocknum){
     unsigned int j=0;
     unsigned char data_to_copy[bytes_for_word];
    // memcpy()
+   /*
     for(int i=first_address_byte;i<first_address_byte+bytes_for_word;i++){
         printf("En memoria el caracter a copiar es %c \n",memory_ram[i]);
         data_to_copy[j]=memory_ram[i];
@@ -112,9 +109,8 @@ void read_block(int blocknum){
     unsigned char* cadena=malloc(sizeof(char)*4);
     cadena="hola";
     unsigned char* cadena2=malloc(sizeof(char)*4);
-    memcpy(cadena2,cadena,4);
-    memcpy(cache.cache_blocks[set][way].data,cadena,4);
-    printf("Data to copy es %s \n",cache.cache_blocks[3][0].data);
+    memcpy(cadena2,cadena,4);*/
+    memcpy(cache.cache_blocks[set][way].data,&memory_ram[first_address_byte],4);
    // cache.cache_blocks[set][way].data=data_to_copy;
     //printf("Data to copy es %s \n",cache.cache_blocks[3][0].data);
    // memcpy(cache.cache_blocks[set][way].data, &memory_ram[first_address_byte], bytes_for_word);
@@ -129,14 +125,7 @@ void write_block(int way, int setnum){
     cache.cache_blocks[setnum][way].data, cache.block_size);
 }
 
-
-
-int main(int argc,char* argv[]){
-    number_of_access=0;
-    block_size_global=32;
-    cache.block_size=32;
-    cache.number_of_ways=4;
-    cache.cache_size=4096;
+void pruebas(){
     init();
     int tam=get_offset_bits();
     printf("La cantidad de bits de offset es %i \n",tam);
@@ -148,9 +137,18 @@ int main(int argc,char* argv[]){
     *(memory_ram+9)='o';
     *(memory_ram+10)='l';
     *(memory_ram+11)='a';
-   // cache.cache_blocks[3][0].data="hola";
     read_block(3);
     printf("lo que se escribio en cache es %s \n",cache.cache_blocks[3][0].data);
+}
+
+int main(int argc,char* argv[]){
+    number_of_access=0;
+    block_size_global=32;
+    cache.block_size=32;
+    cache.number_of_ways=4;
+    cache.cache_size=4096;
+    pruebas();
+
     return 0;
 }
 

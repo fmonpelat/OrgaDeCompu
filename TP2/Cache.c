@@ -80,7 +80,6 @@ unsigned int is_dirty(int way, int setnum){
 void read_block(int blocknum){
     unsigned int set=find_set(blocknum << cache.offset_bits);
     unsigned int way=find_lru(set);
-   // unsigned int index_bits=log(cache.number_of_sets)/log(2);
     unsigned int tag= blocknum >> cache.index_bits;
     unsigned int first_address= (blocknum << cache.offset_bits);
     unsigned int bytes_for_word=cache.block_size/8;
@@ -96,25 +95,7 @@ void read_block(int blocknum){
     printf("tag es %i",tag);
     unsigned int j=0;
     unsigned char data_to_copy[bytes_for_word];
-   // memcpy()
-   /*
-    for(int i=first_address_byte;i<first_address_byte+bytes_for_word;i++){
-        printf("En memoria el caracter a copiar es %c \n",memory_ram[i]);
-        data_to_copy[j]=memory_ram[i];
-        //cache.cache_blocks[set][way].data[j]=memory_ram[i];
-        j++;
-    }
-    data_to_copy[j]='\0';
-    printf("Data to copy es %s \n",data_to_copy);
-    unsigned char* cadena=malloc(sizeof(char)*4);
-    cadena="hola";
-    unsigned char* cadena2=malloc(sizeof(char)*4);
-    memcpy(cadena2,cadena,4);*/
     memcpy(cache.cache_blocks[set][way].data,&memory_ram[first_address_byte],4);
-   // cache.cache_blocks[set][way].data=data_to_copy;
-    //printf("Data to copy es %s \n",cache.cache_blocks[3][0].data);
-   // memcpy(cache.cache_blocks[set][way].data, &memory_ram[first_address_byte], bytes_for_word);
-
 }
 
 

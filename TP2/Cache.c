@@ -8,6 +8,26 @@ typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
 memory_ram_t memory_ram;
 unsigned int number_of_access;
 
+
+/* Funciones auxiliares */
+
+int get_blocks_per_set(){
+    return cache.blocks_per_set;
+}
+
+int get_offset_bits(){
+    return cache.offset_bits;
+}
+
+unsigned int get_tag(address){
+    address=address >> cache.offset_bits;
+    unsigned int index_bits=log(cache.number_of_sets)/log(2);
+    address=address >> index_bits;
+    return address;
+}
+
+/* Primitivas cache */
+
 void init(){
     printf("block size es %i \n",cache.block_size);
     cache.number_of_sets=cache.cache_size/(cache.block_size*cache.number_of_ways);
@@ -48,19 +68,33 @@ unsigned int find_lru(int setnum){
     return less_used_block;
 }
 
+
+
+
+void read_block(int blocknum){
+    unsigned int set=find_set(blocknum);
+    unsigned int way=find_lru(set);
+    unsigned int index_bits=log(cache.number_of_sets)/log(2);
+    unsigned int tag= blocknum >> index_bits;
+    unsigned int first_address= blocknum << cache.offset_bits;
+    number_of_access++;
+
+    cache.cache_blocks[set][way].tag=tag;
+    cache.cache_blocks[set][way].last_access=number_of_access;
+    cache.cache_blocks[set][way].bit_v=1;
+    cache.cache_blocks[set][way].data=memory_ram[blocknum];
+    //Copio en memoria cache el contenido de memoria ram, desde el bloque dado tomando 0 bits
+    // de offset, copiando la totalidad de bytes dada por el tamaño de bloque
+    memcpy(cache.cache_blocks[set][way].data, &memory_ram[first_address], cache.block_size);
+
+}
 unsigned int is_dirty(int way, int setnum){
     return cache.cache_blocks[setnum][way].bit_d;
 }
 
 void read_block(int blocknum);
 
-int get_blocks_per_set(){
-    return cache.blocks_per_set;
-}
 
-int get_offset_bits(){
-    return cache.offset_bits;
-}
 
 int main(int argc,char* argv[]){
     number_of_access=0;

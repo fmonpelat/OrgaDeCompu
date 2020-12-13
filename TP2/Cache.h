@@ -21,6 +21,7 @@ typedef struct cache{
     int number_of_sets;
     int blocks_per_set;
     int offset_bits;
+    unsigned int index_bits;
     block_t** cache_blocks;
 }cache_t;
 

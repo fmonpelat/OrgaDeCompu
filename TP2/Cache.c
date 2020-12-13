@@ -19,7 +19,7 @@ int get_offset_bits(){
     return cache.offset_bits;
 }
 
-unsigned int get_tag(address){
+unsigned int get_tag(unsigned int address){
     address=address >> cache.offset_bits;
     unsigned int index_bits=log(cache.number_of_sets)/log(2);
     address=address >> index_bits;
@@ -36,6 +36,7 @@ void init(){
     cache.total_misses=0;
     cache.cache_blocks=malloc(sizeof(block_t*)*cache.number_of_ways);
     cache.offset_bits=log(cache.block_size)/log(2);
+    cache.index_bits=log(cache.number_of_sets)/log(2);
     for(int i=0;i<cache.number_of_sets;i++){
         cache.cache_blocks[i]=malloc(sizeof(block_t)*cache.number_of_ways);
         for(int j=0;j< cache.number_of_ways;j++){
@@ -68,31 +69,36 @@ unsigned int find_lru(int setnum){
     return less_used_block;
 }
 
-
+unsigned int is_dirty(int way, int setnum){
+    return cache.cache_blocks[setnum][way].bit_d;
+}
 
 
 void read_block(int blocknum){
     unsigned int set=find_set(blocknum);
     unsigned int way=find_lru(set);
-    unsigned int index_bits=log(cache.number_of_sets)/log(2);
-    unsigned int tag= blocknum >> index_bits;
+   // unsigned int index_bits=log(cache.number_of_sets)/log(2);
+    unsigned int tag= blocknum >> cache.index_bits;
     unsigned int first_address= blocknum << cache.offset_bits;
     number_of_access++;
 
     cache.cache_blocks[set][way].tag=tag;
     cache.cache_blocks[set][way].last_access=number_of_access;
     cache.cache_blocks[set][way].bit_v=1;
-    cache.cache_blocks[set][way].data=memory_ram[blocknum];
+   // cache.cache_blocks[set][way].data=memory_ram[blocknum];
     //Copio en memoria cache el contenido de memoria ram, desde el bloque dado tomando 0 bits
     // de offset, copiando la totalidad de bytes dada por el tamaño de bloque
     memcpy(cache.cache_blocks[set][way].data, &memory_ram[first_address], cache.block_size);
 
 }
-unsigned int is_dirty(int way, int setnum){
-    return cache.cache_blocks[setnum][way].bit_d;
-}
 
-void read_block(int blocknum);
+
+void write_block(int way, int setnum){
+
+    unsigned int number_of_block=(cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
+    memcpy(&memory_ram[number_of_block << cache.offset_bits], \
+    cache.cache_blocks[setnum][way].data, cache.block_size);
+}
 
 
 
@@ -108,8 +114,12 @@ int main(int argc,char* argv[]){
     printf("El set es %i \n",set);
     unsigned int dirty_test=is_dirty(1,2);
     printf("Dirty es %i \n",dirty_test);
-    *(memory_ram+2)='a';
-    printf("Memory ram %c \n",memory_ram[2]);
+    *(memory_ram+8)='h';
+    *(memory_ram+9)='o';
+    *(memory_ram+10)='l';
+    *(memory_ram+11)='a';
+    read_block(2);
+    printf("lo que se escribio en cache es %s \n",cache.cache_blocks[2][0].data );
     return 0;
 }
 

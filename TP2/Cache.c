@@ -82,30 +82,27 @@ void read_block(int blocknum){
     unsigned int set=find_set(blocknum << cache.offset_bits);
     unsigned int way=find_lru(set);
     unsigned int tag= blocknum >> cache.index_bits;
-    printf("Set a escribir es %i , way es %i \n",set,way);
-    printf("tag es %i",tag);
+    //printf("Set a escribir es %i , way es %i \n",set,way);
+    //printf("tag es %i",tag);
     unsigned int first_address= (blocknum << cache.offset_bits);
     unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
     //unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
-    printf("First addres byte es %i \n",first_address_byte);
+    //printf("First addres byte es %i \n",first_address_byte);
     number_of_access++;
 
     cache.cache_blocks[set][way].tag=tag;
     cache.cache_blocks[set][way].last_access=number_of_access;
     cache.cache_blocks[set][way].bit_v=1;
-    for(int i=0;i<4;i++){
-        printf("Caracter es %c \n",memory_ram[i]);
-    }
     //Copio en memoria cache el contenido de memoria ram, desde el bloque dado tomando 0 bits
     // de offset, copiando la totalidad de bytes dada por el tamaño de bloque
-    printf("Set a escribir es %i , way es %i \n",set,way);
-    printf("tag es %i",tag);
+    //printf("Set a escribir es %i , way es %i \n",set,way);
+    //printf("tag es %i",tag);
     unsigned int j=0;
     unsigned char data_to_copy[bytes_for_word];
     
     memcpy(cache.cache_blocks[set][way].data,&memory_ram[first_address_byte],cache.block_size/BYTES_FOR_CHAR);
-    printf("lo que se escribio en cache es %s \n",cache.cache_blocks[0][0].data);
+    //printf("lo que se escribio en cache es %s \n",cache.cache_blocks[set][way].data);
 }
 
 
@@ -116,13 +113,11 @@ void write_block(int way, int setnum){
     unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
     //unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
-    printf("Number of block es %i \n",first_address_byte);
-    printf("lo que esta es %s \n",cache.cache_blocks[setnum][way].data);
-    unsigned char* cadena=malloc(sizeof(unsigned char)*4);
-    memcpy(cadena,cache.cache_blocks[setnum][way].data, cache.block_size/BYTES_FOR_CHAR);
+    //printf("Number of block es %i \n",first_address_byte);
+    //printf("lo que esta es %s \n",cache.cache_blocks[setnum][way].data);
 
-    //memcpy(&memory_ram[first_address_byte], \
-    //cache.cache_blocks[setnum][way].data, cache.block_size/BYTES_FOR_CHAR);
+    memcpy(&memory_ram[first_address_byte], \
+    cache.cache_blocks[setnum][way].data, cache.block_size/BYTES_FOR_CHAR);
 }
 
 unsigned int find_way(unsigned int tag,unsigned int set){
@@ -131,19 +126,38 @@ unsigned int find_way(unsigned int tag,unsigned int set){
     for (int i = 0; i < cache.number_of_ways; i++) {
         //Veo si algun bloque del conjunto tiene ese mismo tag y el bit
         //de valido en 1. Si es asi, devuelvo la via en la que se encuentra
-		if (block_in_set[i].tag == tag && block_in_set[i].bit_v) {
+		if (cache.cache_blocks[set][i].tag == tag && cache.cache_blocks[set][i].bit_v) {
 			return i;
 		}
 	}
 	return -1;
 }
 
+unsigned int find_offset(unsigned int address){
+    unsigned int offset=address % (1 << cache.offset_bits); //Chequear
+}
+
 void write_byte(unsigned int address, unsigned char value){
     unsigned int tag=get_tag(address);
-    unsigned int set=find_set(address);
-    unsigned int way=find_way(tag,set);
-    //printf("El set de %i es %i \n",address,set);
     //printf("El tag de %i es %i \n",address,tag);
+    unsigned int set=find_set(address);
+    //printf("El set de %i es %i \n",address,set);
+    unsigned int way=find_way(tag,set);
+    //El offset va a ser por Byte, no por 8 Bytes
+    unsigned int offset=find_offset(address);
+    //printf("El offset es %i \n",offset);
+    
+    
+    if(way!=-1){ //Si esta en cache
+        printf("Hit! \n");
+        number_of_access++;
+        cache.total_hits++;
+        cache.cache_blocks[set][way].data[offset]=value;
+        cache.cache_blocks[set][way].bit_d=1;
+        return;
+    }
+    printf("Miss! \n");
+    read_block(address >> cache.offset_bits);
     //printf("Way es %i \n",way);
 }
 
@@ -165,11 +179,11 @@ void pruebas(){
     *(memory_ram+9)='o';
     *(memory_ram+10)='l';
     *(memory_ram+11)='a';
-   // read_block(3);
-   // read_block(1);
     read_block(0);
-    printf("lo que se escribio en cache es %s \n",cache.cache_blocks[0][0].data);
-    write_block(0,0);
+   // read_block(1);
+    //read_block(0);
+    //printf("lo que se escribio en cache es %s \n",cache.cache_blocks[0][0].data);
+    //write_block(0,2);
 }
 
 int main(int argc,char* argv[]){
@@ -179,12 +193,15 @@ int main(int argc,char* argv[]){
     cache.number_of_ways=4;
     cache.cache_size=4096;
     pruebas();
-    write_byte(96,'b');
     write_byte(0,'a');
     write_byte(4,'a');
     write_byte(33,'c');
-    write_byte(1231,'c');
     write_byte(16384,'b');
+    write_byte(32768,'b');
+    write_byte(49152,'b');
+    write_byte(33,'a');
+    write_byte(33,'a');
+    write_byte(33,'a');
 
     return 0;
 }

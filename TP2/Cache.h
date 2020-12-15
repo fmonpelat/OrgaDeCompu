@@ -59,7 +59,7 @@ void write_block(int way, int setnum);
 /* debe retornar el valor correspondien-
 te a la posición de memoria address, buscándolo primero en el caché. */
 
-char read_byte(unsigned int address);
+unsigned char read_byte(unsigned int address);
 
 /* debe escribir el
 valor value en la posición correcta del bloque que corresponde a

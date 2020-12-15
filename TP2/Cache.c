@@ -161,6 +161,27 @@ void write_byte(unsigned int address, unsigned char value){
     //printf("Way es %i \n",way);
 }
 
+unsigned char read_byte(unsigned int address){
+    unsigned int tag=get_tag(address);
+    //printf("El tag de %i es %i \n",address,tag);
+    unsigned int set=find_set(address);
+
+    unsigned int way=find_way(tag,set);
+
+    unsigned int offset=find_offset(address);
+
+    if(way!=-1){
+        printf("Hit! \n");
+        //number_of_access++;
+        cache.total_hits++;
+        return cache.cache_blocks[set][way].data[offset];
+    }
+   /* else{
+        return 
+    }*/
+
+}
+
 void pruebas(){
     init();
     int tam=get_offset_bits();
@@ -202,6 +223,8 @@ int main(int argc,char* argv[]){
     write_byte(33,'a');
     write_byte(33,'a');
     write_byte(33,'a');
+    unsigned char carac=read_byte(33);
+    printf("El caracter leido es %c \n",carac);
 
     return 0;
 }

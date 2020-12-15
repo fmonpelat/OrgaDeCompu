@@ -89,12 +89,18 @@ void read_block(int blocknum){
     unsigned int set=find_set(blocknum << cache.offset_bits);
     unsigned int way=find_lru(set);
     unsigned int tag= blocknum >> cache.index_bits;
-    //printf("Set a escribir es %i , way es %i \n",set,way);
+    printf("Set a escribir es %i , way es %i \n",set,way);
     //printf("tag es %i",tag);
     unsigned int first_address= (blocknum << cache.offset_bits);
     unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
     //unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
+
+    //Si el bloque de cache que se va a reemplazar, ya estaba escrito
+    //guardo lo que estaba escrito en memoria
+    if(is_dirty(way,set)==1){
+        write_block(way,set);
+    }
     //printf("First addres byte es %i \n",first_address_byte);
     //cache.number_of_access++;
     //printf("accesses number es %i \n",accesses_number);
@@ -166,7 +172,8 @@ void write_byte(unsigned int address, unsigned char value){
         return;
     }
     printf("Miss! \n");
-    //printf("Bloque a leer es %i \n",address >> cache.offset_bits);
+    memory_ram[address >> cache.offset_bits]=value;
+    printf("Bloque a leer es %i \n",address >> cache.offset_bits);
     read_block(address >> cache.offset_bits);
     //printf("Way es %i \n",way);
 }
@@ -223,15 +230,16 @@ void pruebas(){
 void prueba_mem_1(){
     init();
     //printf("la es %i \n",cache.cache_blocks[0][0].last_access);
-    //write_byte(0,255);
+    write_byte(0,255);
     write_byte(16384,254);
     
     write_byte(32768,248);
-    write_byte(16384,'b');
-   // write_byte(49152,96);
+   // write_byte(16384,'b');
+    write_byte(49152,96);
     //write_byte(0,24);
-   // unsigned char carac=read_byte(0);
-   // printf("Carac es %c \n",carac);
+    unsigned char carac=read_byte(0);
+    printf("Carac es %c \n",carac);
+    printf("Carac2 es %s \n",cache.cache_blocks[0][0].data);
     //unsigned char carac=read_byte(1);
     //unsigned char carac=read_byte(1);
     //unsigned char carac=read_byte(1);

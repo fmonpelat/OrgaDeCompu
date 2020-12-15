@@ -171,6 +171,7 @@ void write_byte(unsigned int address, unsigned char value){
         cache.cache_blocks[set][way].bit_d=1;
         return;
     }
+    cache.total_misses++;
     printf("Miss! \n");
     memory_ram[address/BYTES_FOR_CHAR]=value;
    // memory_ram[address >> cache.offset_bits]=value;
@@ -199,8 +200,13 @@ unsigned char read_byte(unsigned int address){
     else{
         printf("asd \n");
         printf("Miss! \n");
+        cache.total_misses++;
         return memory_ram[address];
     }
+}
+
+int get_miss_rate(){
+    return (cache.total_misses * 100 / (cache.total_hits + cache.total_misses));
 }
 
 void pruebas(){
@@ -236,6 +242,7 @@ void prueba_mem_1(){
     printf("%d \n",read_byte(16384));
     printf("%d \n",read_byte(32768));
     printf("%d \n",read_byte(49152));
+    printf("Porcentaje de misses %d \n",get_miss_rate());
 }
 
 int main(int argc,char* argv[]){

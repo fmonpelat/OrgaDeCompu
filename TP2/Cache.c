@@ -197,28 +197,6 @@ int get_miss_rate(){
     return (cache.total_misses * 100 / (cache.total_hits + cache.total_misses));
 }
 
-void pruebas(){
-    init();
-    int tam=get_offset_bits();
-    //printf("La cantidad de bits de offset es %i \n",tam);
-    unsigned int set=find_set(45);
-    //printf("El set es %i \n",set);
-    unsigned int dirty_test=is_dirty(1,2);
-    //printf("Dirty es %i \n",dirty_test);
-    *(memory_ram)='c';
-    *(memory_ram+1)='h';
-    *(memory_ram+2)='a';
-    *(memory_ram+3)='u';
-    *(memory_ram+8)='h';
-    *(memory_ram+9)='o';
-    *(memory_ram+10)='l';
-    *(memory_ram+11)='a';
-    read_block(0);
-   // read_block(1);
-    //read_block(0);
-    //printf("lo que se escribio en cache es %s \n",cache.cache_blocks[0][0].data);
-    //write_block(0,2);
-}
 
 void prueba_mem_1(){
     cache.block_size=32;
@@ -275,11 +253,13 @@ void prueba_mem_3(){
 
 
 int main(int argc,char* argv[]){
-    //number_of_access=0;
 
     //prueba_mem_1();
     prueba_mem_2();
-    /*pruebas();
+    //prueba_mem_3();
+
+
+/*
     write_byte(0,'a');
     write_byte(4,'a');
     write_byte(33,'c');

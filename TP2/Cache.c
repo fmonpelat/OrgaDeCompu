@@ -176,10 +176,11 @@ unsigned char read_byte(unsigned int address){
         cache.total_hits++;
         return cache.cache_blocks[set][way].data[offset];
     }
-   /* else{
-        return 
-    }*/
-
+    else{
+        printf("asd \n");
+        printf("Miss! \n");
+        return memory_ram[address];
+    }
 }
 
 void pruebas(){
@@ -207,13 +208,33 @@ void pruebas(){
     //write_block(0,2);
 }
 
+void prueba_mem_1(){
+    init();
+    write_byte(0,255);
+    write_byte(16384,254);
+    write_byte(32768,248);
+    write_byte(49152,96);
+    unsigned char carac=read_byte(0);
+    printf("Carac es %c \n",carac);
+    //unsigned char carac=read_byte(1);
+    //unsigned char carac=read_byte(1);
+    //unsigned char carac=read_byte(1);
+    /*
+    R 0
+    R 16384
+    R 32768
+    R 49152
+    MR*/
+}
+
 int main(int argc,char* argv[]){
     number_of_access=0;
     block_size_global=32;
     cache.block_size=32;
     cache.number_of_ways=4;
     cache.cache_size=4096;
-    pruebas();
+    prueba_mem_1();
+    /*pruebas();
     write_byte(0,'a');
     write_byte(4,'a');
     write_byte(33,'c');
@@ -223,8 +244,8 @@ int main(int argc,char* argv[]){
     write_byte(33,'a');
     write_byte(33,'a');
     write_byte(33,'a');
-    unsigned char carac=read_byte(33);
-    printf("El caracter leido es %c \n",carac);
+    unsigned char carac=read_byte(1);
+    printf("El caracter leido es %c \n",carac);*/
 
     return 0;
 }

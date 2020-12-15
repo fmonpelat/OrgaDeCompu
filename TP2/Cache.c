@@ -6,9 +6,10 @@
 
 cache_t cache;
 #define MEMORY_RAM_SIZE 65536
+unsigned int accesses_number;
 typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
 memory_ram_t memory_ram;
-unsigned int number_of_access;
+//unsigned int number_of_access;
 
 
 int block_size_global=0;
@@ -34,7 +35,6 @@ unsigned int get_tag(unsigned int address){
 /* Primitivas cache */
 
 void init(){
-    printf("block size es %i \n",cache.block_size);
     cache.number_of_sets=cache.cache_size/(cache.block_size*cache.number_of_ways);
     cache.blocks_per_set=cache.cache_size/(cache.block_size*cache.number_of_sets);
     cache.total_hits=0;
@@ -52,6 +52,11 @@ void init(){
             cache.cache_blocks[i][j].tag=-1;
         }
     }
+    //No se inicializa en 0 el primer set sino
+    for(int j=0;j< cache.number_of_ways;j++){
+        cache.cache_blocks[0][j].last_access=0;
+    }
+    accesses_number =0;
 }
 
 unsigned int find_set(unsigned int address){
@@ -65,6 +70,8 @@ unsigned int find_lru(int setnum){
     unsigned int less_used_block=0;
 
     for(int i=0;i<cache.number_of_ways;i++){
+        //printf("Min es %i way es %i \n",min,i);
+        //printf("LAST access es %i \n",cache.cache_blocks[setnum][i].last_access);
         if(min>cache.cache_blocks[setnum][i].last_access){
             min=cache.cache_blocks[setnum][i].last_access;
             less_used_block=i;
@@ -89,17 +96,19 @@ void read_block(int blocknum){
     //unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
     //printf("First addres byte es %i \n",first_address_byte);
-    number_of_access++;
+    //cache.number_of_access++;
+    //printf("accesses number es %i \n",accesses_number);
+    cache.cache_blocks[set][way].last_access=accesses_number;
 
     cache.cache_blocks[set][way].tag=tag;
-    cache.cache_blocks[set][way].last_access=number_of_access;
+    //cache.cache_blocks[set][way].last_access=cache.number_of_access;
     cache.cache_blocks[set][way].bit_v=1;
     //Copio en memoria cache el contenido de memoria ram, desde el bloque dado tomando 0 bits
     // de offset, copiando la totalidad de bytes dada por el tamaño de bloque
-    //printf("Set a escribir es %i , way es %i \n",set,way);
+    printf("Set a escribir es %i , way es %i \n",set,way);
     //printf("tag es %i",tag);
-    unsigned int j=0;
-    unsigned char data_to_copy[bytes_for_word];
+   // unsigned int j=0;
+    //unsigned char data_to_copy[bytes_for_word];
     
     memcpy(cache.cache_blocks[set][way].data,&memory_ram[first_address_byte],cache.block_size/BYTES_FOR_CHAR);
     //printf("lo que se escribio en cache es %s \n",cache.cache_blocks[set][way].data);
@@ -138,6 +147,7 @@ unsigned int find_offset(unsigned int address){
 }
 
 void write_byte(unsigned int address, unsigned char value){
+    accesses_number +=1;
     unsigned int tag=get_tag(address);
     //printf("El tag de %i es %i \n",address,tag);
     unsigned int set=find_set(address);
@@ -147,21 +157,22 @@ void write_byte(unsigned int address, unsigned char value){
     unsigned int offset=find_offset(address);
     //printf("El offset es %i \n",offset);
     
-    
     if(way!=-1){ //Si esta en cache
         printf("Hit! \n");
-        number_of_access++;
+        //cache.number_of_access++;
         cache.total_hits++;
         cache.cache_blocks[set][way].data[offset]=value;
         cache.cache_blocks[set][way].bit_d=1;
         return;
     }
     printf("Miss! \n");
+    //printf("Bloque a leer es %i \n",address >> cache.offset_bits);
     read_block(address >> cache.offset_bits);
     //printf("Way es %i \n",way);
 }
 
 unsigned char read_byte(unsigned int address){
+    accesses_number +=1;
     unsigned int tag=get_tag(address);
     //printf("El tag de %i es %i \n",address,tag);
     unsigned int set=find_set(address);
@@ -185,6 +196,7 @@ unsigned char read_byte(unsigned int address){
 
 void pruebas(){
     init();
+
     int tam=get_offset_bits();
     //printf("La cantidad de bits de offset es %i \n",tam);
     unsigned int set=find_set(45);
@@ -210,12 +222,16 @@ void pruebas(){
 
 void prueba_mem_1(){
     init();
-    write_byte(0,255);
+    //printf("la es %i \n",cache.cache_blocks[0][0].last_access);
+    //write_byte(0,255);
     write_byte(16384,254);
+    
     write_byte(32768,248);
-    write_byte(49152,96);
-    unsigned char carac=read_byte(0);
-    printf("Carac es %c \n",carac);
+    write_byte(16384,'b');
+   // write_byte(49152,96);
+    //write_byte(0,24);
+   // unsigned char carac=read_byte(0);
+   // printf("Carac es %c \n",carac);
     //unsigned char carac=read_byte(1);
     //unsigned char carac=read_byte(1);
     //unsigned char carac=read_byte(1);
@@ -228,7 +244,7 @@ void prueba_mem_1(){
 }
 
 int main(int argc,char* argv[]){
-    number_of_access=0;
+    //number_of_access=0;
     block_size_global=32;
     cache.block_size=32;
     cache.number_of_ways=4;
@@ -241,9 +257,9 @@ int main(int argc,char* argv[]){
     write_byte(16384,'b');
     write_byte(32768,'b');
     write_byte(49152,'b');
-    write_byte(33,'a');
-    write_byte(33,'a');
-    write_byte(33,'a');
+    write_byte(33,'b');
+    write_byte(33,'c');
+    write_byte(33,'d');
     unsigned char carac=read_byte(1);
     printf("El caracter leido es %c \n",carac);*/
 

@@ -46,7 +46,8 @@ extern int block_size_global;
 
 enum Options {INPUT, OUTPUT};     // filenameOptions
 #define BUF_LINE 30
-char buf[BUF_LINE]; // buffer for file line
+// char buf[BUF_LINE]; // buffer for file line
+char *buf;
 
 int main(int argc,char* argv[])
 {
@@ -60,51 +61,94 @@ int main(int argc,char* argv[])
     else if( getOpts == -1)
         return 0;
 
-    printf("cacheSize: %zu, blockSize: %zu, ways: %zu \n",cacheSize,blockSize,ways);
+    // setting cache parameters from command line args
+    cache.block_size = blockSize;
+    cache.cache_size = cacheSize*1024; // all sizes in bytes
+    cache.number_of_ways = ways;
 
-
+    // preparing input/output streams
     if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f_in,&f_out)!=true )
         return 1;
 
-    
-    // aca dami podes seguir
-    // while( (nread = fread(buf, sizeof(char), 4, f_in)) > 1 )
-    // {
-		 
-    //     if( !strcmp(buf,"init") )
-    //         init();
-    //     else
-    //     {
-    //         sscanf()
-    //     }
-        
+    size_t nread = 0;
+    size_t buf_size = BUF_LINE;
+    bool init_set = false;
 
-    //     fwrite(buf,sizeof(char),len,f_out);
-	//  }
-
+    // while( (nread = fread(buf, sizeof(char), BUF_LINE, f_in)) > 1 )
+    while ( (nread = getline(&buf,&buf_size,f_in)) )
+    {
+	    parse_command_cache(buf,&init_set,f_out);
+	}
 
     // prueba_mem_1();
     // prueba_mem_2();
     // prueba_mem_3();
-
-/*
-    write_byte(0,'a');
-    write_byte(4,'a');
-    write_byte(33,'c');
-    write_byte(16384,'b');
-    write_byte(32768,'b');
-    write_byte(49152,'b');
-    write_byte(33,'b');
-    write_byte(33,'c');
-    write_byte(33,'d');
-    unsigned char carac=read_byte(1);
-    printf("El caracter leido es %c \n",carac);*/
+    // write_byte(0,'a');
+    // write_byte(4,'a');
+    // write_byte(33,'c');
+    // write_byte(16384,'b');
+    // write_byte(32768,'b');
+    // write_byte(49152,'b');
+    // write_byte(33,'b');
+    // write_byte(33,'c');
+    // write_byte(33,'d');
+    // unsigned char carac=read_byte(1);
+    // printf("El caracter leido es %c \n",carac);
 
     fclose(f_in);
     fclose(f_out);
     return 0;
 }
 
+/* Function Name: parseArgs 
+*
+*  Notes: this function show the menu of help with all the options available
+*/
+bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
+{
+    char command[5];
+    unsigned int *arg1;
+    unsigned int *arg2;
+
+    strstrip(buf); // take unwanted chars = \r,\n and \t
+    if( !strcmp(buf,"init") )
+    {   
+        if(*init_set==true)
+            fprintf(f,"init is set already...\n");
+        else 
+        {
+            init();
+            *init_set = true;
+        }
+    }
+    else if(!strcmp(buf,"MR"))
+        fprintf(f,"miss rate: %d \n",get_miss_rate());
+    else
+    {
+        if(!init_set)
+        {
+            fprintf(f,"must set init first\n");
+            return false;
+        }
+        switch (buf[0])
+        {
+            case 'R':
+                sscanf(buf,"%c %u",command,arg1);
+                fprintf(f,"command: %s arg1: %u\n",command,*arg1);
+                // read cache
+                break;
+            case 'W':
+                sscanf(buf,"%c %u, %u",command,arg1,arg2);
+                fprintf(f,"command: %s arg1: %u arg2: %u\n",command,*arg1,*arg2);
+                // write cache
+                break;
+            default:
+                fprintf(f,"Not a valid command\n");
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Function Name: show_help 
 *
@@ -284,7 +328,7 @@ bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **
   }
 
   if(filenameoutput == NULL || !strcmp(filenameoutput,"-"))
-    *f_out = stdout; /* compatibility with piping */
+      *f_out = stdout; /* compatibility with piping */
   else
     *f_out = fopen (filenameoutput,"w"); /* open the file for writing*/
   if(*f_out == NULL)
@@ -293,4 +337,20 @@ bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **
     return false;    
   }
   return true;
+}
+
+/* Function Name: strstrip 
+*
+*  Notes: strip \n \r and \t from string
+*/
+void strstrip(char *s) {
+    char *p2 = s;
+    while(*s != '\0') {
+        if(*s != '\t' && *s != '\n' && *s != '\r') {
+            *p2++ = *s++;
+        } else {
+            ++s;
+        }
+    }
+    *p2 = '\0';
 }

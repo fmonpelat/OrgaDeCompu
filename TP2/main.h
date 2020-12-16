@@ -19,4 +19,8 @@ bool convertParamToNumber(char *num,size_t *converted);
 
 bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **f_out);
 
+bool parse_command_cache(char * buf, bool *init_set ,FILE *f);
+
+void strstrip(char *s);
+
 #endif /* __MAIN_H__ */

@@ -191,7 +191,7 @@ unsigned char read_byte(unsigned int address){
 }
 
 int get_miss_rate(){
-    return (cache.total_misses * 100 / (cache.total_hits + cache.total_misses));
+    return !(cache.total_hits + cache.total_misses)? 0: (cache.total_misses * 100 / (cache.total_hits + cache.total_misses));
 }
 
 

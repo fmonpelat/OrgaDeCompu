@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define BYTES_FOR_CHAR 8
+#define MEMORY_RAM_SIZE 65536
 
 typedef struct block{
     int bit_v;
@@ -25,6 +27,8 @@ typedef struct cache{
     unsigned int index_bits;
     block_t** cache_blocks;
 }cache_t;
+
+typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
 
 
 int get_blocks_per_set();
@@ -71,5 +75,11 @@ void write_byte(unsigned int address,unsigned char value);
 desde que se inicializó el cache.*/
 
 int get_miss_rate();
+
+/* funciones de prueba */
+void prueba_mem_1(void);
+void prueba_mem_2(void);
+void prueba_mem_3(void);
+
 
 #endif

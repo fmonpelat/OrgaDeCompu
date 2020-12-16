@@ -2,12 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#define BYTES_FOR_CHAR 8
 
 cache_t cache;
-#define MEMORY_RAM_SIZE 65536
 unsigned int accesses_number;
-typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
 memory_ram_t memory_ram;
 //unsigned int number_of_access;
 
@@ -143,7 +140,7 @@ unsigned int find_way(unsigned int tag,unsigned int set){
 }
 
 unsigned int find_offset(unsigned int address){
-    unsigned int offset=address % (1 << cache.offset_bits); //Chequear
+    return address % (1 << cache.offset_bits); //Chequear
 }
 
 void write_byte(unsigned int address, unsigned char value){
@@ -249,29 +246,5 @@ void prueba_mem_3(){
     printf("%d \n",read_byte(3072));
     printf("%d \n",read_byte(4096));
     printf("Porcentaje de misses es %d \n",get_miss_rate());
-}
-
-
-int main(int argc,char* argv[]){
-
-    //prueba_mem_1();
-    prueba_mem_2();
-    //prueba_mem_3();
-
-
-/*
-    write_byte(0,'a');
-    write_byte(4,'a');
-    write_byte(33,'c');
-    write_byte(16384,'b');
-    write_byte(32768,'b');
-    write_byte(49152,'b');
-    write_byte(33,'b');
-    write_byte(33,'c');
-    write_byte(33,'d');
-    unsigned char carac=read_byte(1);
-    printf("El caracter leido es %c \n",carac);*/
-
-    return 0;
 }
 

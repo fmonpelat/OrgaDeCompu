@@ -122,7 +122,6 @@ bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
                 // read cache
                 break;
             case 'W':
-                printf("%s\n",buf);
                 sscanf(buf,"%c %u,%u",command,&arg1,&arg2);
                 fprintf(f,"command: %s arg1: %u arg2: %u\n",command,arg1,arg2);
                 // write cache

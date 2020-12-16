@@ -60,7 +60,7 @@ int main(int argc,char* argv[])
     else if( getOpts == -1)
         return 0;
 
-    // printf("cacheSize: %zu, blockSize: %zu, ways: %zu \n",cacheSize,blockSize,ways);
+    printf("cacheSize: %zu, blockSize: %zu, ways: %zu \n",cacheSize,blockSize,ways);
 
 
     if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f_in,&f_out)!=true )
@@ -224,7 +224,7 @@ int getOptsProcedure(int argc,char ** argv,char ** filenameInput,char ** filenam
         case 'c':
             break;
         case 's':
-            if( prev == (int)'c' )
+            if( prev == (int)'c' || !strcmp(long_options[option_index].name,"cachesize") )
             {
                 if( !convertParamToNumber(optarg,cachesize) )
                 {

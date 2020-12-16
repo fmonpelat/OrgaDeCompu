@@ -46,7 +46,6 @@ extern int block_size_global;
 
 enum Options {INPUT, OUTPUT};     // filenameOptions
 #define BUF_LINE 30
-// char buf[BUF_LINE]; // buffer for file line
 char *buf;
 
 int main(int argc,char* argv[])
@@ -74,41 +73,26 @@ int main(int argc,char* argv[])
     size_t buf_size = BUF_LINE;
     bool init_set = false;
 
-    // while( (nread = fread(buf, sizeof(char), BUF_LINE, f_in)) > 1 )
     while ( (nread = getline(&buf,&buf_size,f_in)) )
     {
 	    parse_command_cache(buf,&init_set,f_out);
 	}
 
-    // prueba_mem_1();
-    // prueba_mem_2();
-    // prueba_mem_3();
-    // write_byte(0,'a');
-    // write_byte(4,'a');
-    // write_byte(33,'c');
-    // write_byte(16384,'b');
-    // write_byte(32768,'b');
-    // write_byte(49152,'b');
-    // write_byte(33,'b');
-    // write_byte(33,'c');
-    // write_byte(33,'d');
-    // unsigned char carac=read_byte(1);
-    // printf("El caracter leido es %c \n",carac);
-
+    free(buf);
     fclose(f_in);
     fclose(f_out);
     return 0;
 }
 
-/* Function Name: parseArgs 
+/* Function Name: parse_command_cache 
 *
-*  Notes: this function show the menu of help with all the options available
+*  Notes: this function parses the file input for valid cache commands
 */
 bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
 {
     char command[5];
-    unsigned int *arg1;
-    unsigned int *arg2;
+    unsigned int arg1;
+    unsigned int arg2;
 
     strstrip(buf); // take unwanted chars = \r,\n and \t
     if( !strcmp(buf,"init") )
@@ -133,13 +117,14 @@ bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
         switch (buf[0])
         {
             case 'R':
-                sscanf(buf,"%c %u",command,arg1);
-                fprintf(f,"command: %s arg1: %u\n",command,*arg1);
+                sscanf(buf,"%c %u",command,&arg1);
+                fprintf(f,"command: %s arg1: %u\n",command,arg1);
                 // read cache
                 break;
             case 'W':
-                sscanf(buf,"%c %u, %u",command,arg1,arg2);
-                fprintf(f,"command: %s arg1: %u arg2: %u\n",command,*arg1,*arg2);
+                printf("%s\n",buf);
+                sscanf(buf,"%c %u,%u",command,&arg1,&arg2);
+                fprintf(f,"command: %s arg1: %u arg2: %u\n",command,arg1,arg2);
                 // write cache
                 break;
             default:
@@ -343,7 +328,8 @@ bool prepareStreams(char *filenameinput,char *filenameoutput,FILE **f_in,FILE **
 *
 *  Notes: strip \n \r and \t from string
 */
-void strstrip(char *s) {
+void strstrip(char *s)
+{
     char *p2 = s;
     while(*s != '\0') {
         if(*s != '\t' && *s != '\n' && *s != '\r') {

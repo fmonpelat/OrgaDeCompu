@@ -48,7 +48,6 @@ int main(int argc,char* argv[])
     {
 	    parse_command_cache(buf,&init_set,f_out);
 	}
-
     free(buf);
     // fclose(f_in);
     fclose(f_out);

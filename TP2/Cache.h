@@ -77,11 +77,12 @@ desde que se inicializó el cache.*/
 int get_miss_rate();
 
 /* funciones de prueba */
+/*
 void prueba_mem_1(void);
 void prueba_mem_2(void);
 void prueba_mem_3(void);
 void prueba_mem_4(void);
 void prueba_mem_5(void);
-
+*/
 
 #endif

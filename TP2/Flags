@@ -1,9 +1,9 @@
 Prueba1:
 ./tp2 -w 4 -cs 4 -bs 32 prueba1.mem
 Prueba2:
-./tp2 -w 1 -cs 16 -bs 128 prueba2.mem
+./tp2 -w 1 -cs 16 -bs 128 pruebas2_3.mem
 Prueba3:
-./tp2 -w 4 -cs 4 -bs 32 prueba2.mem
+./tp2 -w 4 -cs 4 -bs 32 pruebas2_3.mem
 Prueba4:
 ./tp2 -w 1 -cs 16 -bs 128 prueba4.mem
 Prueba5:

@@ -61,9 +61,9 @@ int main(int argc,char* argv[])
         return 0;
 
     // setting cache parameters from command line args
-    cache.block_size = blockSize;
-    cache.cache_size = cacheSize*1024; // all sizes in bytes
-    cache.number_of_ways = ways;
+    cache.block_size = (int) blockSize;
+    cache.cache_size = (int) cacheSize*1024; // all sizes in bytes
+    cache.number_of_ways = (int) ways;
 
     // preparing input/output streams
     if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f_in,&f_out)!=true )

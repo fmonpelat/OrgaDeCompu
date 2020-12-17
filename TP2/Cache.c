@@ -116,7 +116,6 @@ void read_block(int blocknum){
     unsigned int way=find_lru(set);
     unsigned int tag= blocknum >> cache.index_bits;
     unsigned int first_address= (blocknum << cache.offset_bits);
-    unsigned int bytes_for_word=cache.block_size/BITS_FOR_CHAR;
     unsigned int first_address_byte=(first_address/BITS_FOR_CHAR);
     //Si el bloque de cache que se va a reemplazar, ya estaba escrito
     //guardo lo que estaba escrito en memoria
@@ -139,7 +138,6 @@ void write_block(int way, int setnum){
     unsigned int number_of_block=\
     (cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
     unsigned int first_address= (number_of_block << cache.offset_bits);
-    unsigned int bytes_for_word=cache.block_size/BITS_FOR_CHAR;
     unsigned int first_address_byte=(first_address/BITS_FOR_CHAR);
     memcpy(&memory_ram[first_address_byte], \
     cache.cache_blocks[setnum][way].data, cache.block_size/BITS_FOR_CHAR);

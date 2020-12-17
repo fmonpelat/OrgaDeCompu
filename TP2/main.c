@@ -120,13 +120,13 @@ bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
         {
             case 'R':
                 sscanf(buf,"%c %u",command,&arg1);
-                fprintf(f,"command: %s arg1: %u\n",command,arg1);
-                // read cache
+                //fprintf(f,"command: %s arg1: %u\n",command,arg1);
+                printf("%d \n",read_byte(arg1));
                 break;
             case 'W':
                 sscanf(buf,"%c %u,%u",command,&arg1,&arg2);
-                fprintf(f,"command: %s arg1: %u arg2: %u\n",command,arg1,arg2);
-                // write cache
+                //fprintf(f,"command: %s arg1: %u arg2: %u\n",command,arg1,arg2);
+                write_byte(arg1,arg2);
                 break;
             default:
                 fprintf(f,"Not a valid command: %s\n",buf);

@@ -14,9 +14,11 @@ int get_blocks_per_set(){
     return cache.blocks_per_set;
 }
 
+
 int get_offset_bits(){
     return cache.offset_bits;
 }
+
 
 unsigned int get_tag(unsigned int address){
     address=address >> cache.offset_bits;
@@ -24,7 +26,6 @@ unsigned int get_tag(unsigned int address){
     address=address >> index_bits;
     return address;
 }
-
 
 
 unsigned int find_way(unsigned int tag,unsigned int set){
@@ -39,11 +40,14 @@ unsigned int find_way(unsigned int tag,unsigned int set){
 	return -1;
 }
 
+
 unsigned int find_offset(unsigned int address){
     return address % (1 << cache.offset_bits); //Chequear
 }
 
+
 /* Primitivas cache */
+
 
 void init(){
     cache.number_of_sets=cache.cache_size/(cache.block_size*cache.number_of_ways);
@@ -57,7 +61,7 @@ void init(){
         cache.cache_blocks[i]=malloc(sizeof(block_t)*cache.number_of_ways);
         for(int j=0;j< cache.number_of_ways;j++){
             cache.cache_blocks[i][j].data=malloc\
-            (sizeof(unsigned char)*cache.block_size/BYTES_FOR_CHAR);
+            (sizeof(unsigned char)*cache.block_size/8);
             cache.cache_blocks[i][j].bit_d=0;
             cache.cache_blocks[i][j].bit_v=0;
             cache.cache_blocks[i][j].last_access=0;
@@ -69,6 +73,7 @@ void init(){
     }
     accesses_number=0;
 }
+
 
 /* Devuelve el conjunto de
 caché al que mapea la dirección address.*/
@@ -95,11 +100,13 @@ unsigned int find_lru(int setnum){
     return less_used_block;
 }
 
+
 /* Devuelve el es-
 tado del bit D del bloque correspondiente.*/
 unsigned int is_dirty(int way, int setnum){
     return cache.cache_blocks[setnum][way].bit_d;
 }
+
 
 /* Lee el bloque blocknum
 de memoria principal y lo guarda en el lugar que le corresponde en la memoria
@@ -109,8 +116,8 @@ void read_block(int blocknum){
     unsigned int way=find_lru(set);
     unsigned int tag= blocknum >> cache.index_bits;
     unsigned int first_address= (blocknum << cache.offset_bits);
-    unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
-    unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
+    unsigned int bytes_for_word=cache.block_size/BITS_FOR_CHAR;
+    unsigned int first_address_byte=(first_address/BITS_FOR_CHAR);
     //Si el bloque de cache que se va a reemplazar, ya estaba escrito
     //guardo lo que estaba escrito en memoria
     if(is_dirty(way,set)==1){
@@ -122,8 +129,9 @@ void read_block(int blocknum){
     //Copio en memoria cache el contenido de memoria ram, desde el bloque dado tomando 0 bits
     // de offset, copiando la totalidad de bytes dada por el tamaño de bloque
     memcpy(cache.cache_blocks[set][way].data,\
-    &memory_ram[first_address_byte],cache.block_size/BYTES_FOR_CHAR);
+    &memory_ram[first_address_byte],cache.block_size/BITS_FOR_CHAR);
 }
+
 
 /* Escribe en me-
 moria los datos contenidos en el bloque setnum de la vı́a way. */
@@ -131,11 +139,12 @@ void write_block(int way, int setnum){
     unsigned int number_of_block=\
     (cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
     unsigned int first_address= (number_of_block << cache.offset_bits);
-    unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
-    unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
+    unsigned int bytes_for_word=cache.block_size/BITS_FOR_CHAR;
+    unsigned int first_address_byte=(first_address/BITS_FOR_CHAR);
     memcpy(&memory_ram[first_address_byte], \
-    cache.cache_blocks[setnum][way].data, cache.block_size/BYTES_FOR_CHAR);
+    cache.cache_blocks[setnum][way].data, cache.block_size/BITS_FOR_CHAR);
 }
+
 
 /* Retorna el valor correspondien-
 te a la posición de memoria address, buscándolo primero en el caché. */
@@ -154,9 +163,10 @@ unsigned char read_byte(unsigned int address){
         printf("Miss ");
         cache.total_misses++;
         read_block(address >> cache.offset_bits);
-        return memory_ram[address/BYTES_FOR_CHAR];
+        return memory_ram[address/BITS_FOR_CHAR];
     }
 }
+
 
 /* Escribe el
 valor value en la posición correcta del bloque que corresponde a
@@ -178,7 +188,7 @@ void write_byte(unsigned int address, unsigned char value){
     }
     printf("Miss \n");
     cache.total_misses++;
-    memory_ram[address/BYTES_FOR_CHAR]=value;
+    memory_ram[address/BITS_FOR_CHAR]=value;
     read_block(address >> cache.offset_bits);
 }
 

@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define BYTES_FOR_CHAR 8
+#define BITS_FOR_CHAR 8
 #define MEMORY_RAM_SIZE 65536
 
 typedef struct block{

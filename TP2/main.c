@@ -1,34 +1,3 @@
-
-/* 
-## Algoritmo de Euclides - 66.20 Organizacion de computadoras FIUBA
-## Date: 12/10/2020
-## Notes: This program will essentially perform Euclides Algorithm
-
-# MIT License
-
-# Copyright (c) 2020 
-# Written by:
-# 		Damian ganopolsky (dganopolsky@fi.uba.ar)
-# 		Jorge Sandez (sandez.jorge@gmail.com)
-# 		Facundo Monpelat (fmonpelat@fi.uba.ar)
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -73,7 +42,7 @@ int main(int argc,char* argv[])
     size_t buf_size = BUF_LINE;
     bool init_set = false;
     // prueba_mem_4();
-    // prueba_mem_5();
+     //prueba_mem_5();
 
     while ( (nread = getline(&buf,&buf_size,f_in)) >=0 )
     {
@@ -108,7 +77,7 @@ bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
         }
     }
     else if(!strcmp(buf,"MR"))
-        fprintf(f,"miss rate: %d \n",get_miss_rate());
+        fprintf(f,"Porcentaje de misses: %d \n",get_miss_rate());
     else
     {
         if(!init_set)

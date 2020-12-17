@@ -6,10 +6,6 @@
 cache_t cache;
 unsigned int accesses_number;
 memory_ram_t memory_ram;
-//unsigned int number_of_access;
-
-
-int block_size_global=0;
 
 
 /* Funciones auxiliares */
@@ -27,6 +23,28 @@ unsigned int get_tag(unsigned int address){
     unsigned int index_bits=log(cache.number_of_sets)/log(2);
     address=address >> index_bits;
     return address;
+}
+
+unsigned int find_set(unsigned int address){
+    address=address >> cache.offset_bits;
+    address=address%cache.number_of_sets;
+	return address;
+}
+
+unsigned int find_way(unsigned int tag,unsigned int set){
+    block_t* block_in_set=cache.cache_blocks[set];
+    for (int i = 0; i < cache.number_of_ways; i++) {
+        //Veo si algun bloque del conjunto tiene ese mismo tag y el bit
+        //de valido en 1. Si es asi, devuelvo la via en la que se encuentra
+		if (cache.cache_blocks[set][i].tag == tag && cache.cache_blocks[set][i].bit_v) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+unsigned int find_offset(unsigned int address){
+    return address % (1 << cache.offset_bits); //Chequear
 }
 
 /* Primitivas cache */
@@ -56,24 +74,17 @@ void init(){
     accesses_number=0;
 }
 
-unsigned int find_set(unsigned int address){
-    address=address >> cache.offset_bits;
-    address=address%cache.number_of_sets;
-	return address;
-}
+
 
 unsigned int find_lru(int setnum){
     unsigned int min=cache.cache_blocks[setnum][0].last_access;
     unsigned int less_used_block=0;
     for(int i=0;i<cache.number_of_ways;i++){
-        //printf("Min es %i way es %i \n",min,i);
-        //printf("LAST access es %i \n",cache.cache_blocks[setnum][i].last_access);
         if(min>cache.cache_blocks[setnum][i].last_access){
             min=cache.cache_blocks[setnum][i].last_access;
             less_used_block=i;
         }
     }
-    //printf("Way menos usada es %i \n",less_used_block);
     return less_used_block;
 }
 
@@ -86,21 +97,16 @@ void read_block(int blocknum){
     unsigned int set=find_set(blocknum << cache.offset_bits);
     unsigned int way=find_lru(set);
     unsigned int tag= blocknum >> cache.index_bits;
-    printf("Set a escribir es %i , way es %i \n",set,way);
-    //printf("tag es %i",tag);
+    //printf("Set a escribir es %i , way es %i \n",set,way);
     unsigned int first_address= (blocknum << cache.offset_bits);
     unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
-    //unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
-    //printf("first adddess byte es %i \n",first_address_byte);
 
     //Si el bloque de cache que se va a reemplazar, ya estaba escrito
     //guardo lo que estaba escrito en memoria
     if(is_dirty(way,set)==1){
         write_block(way,set);
     }
-    //printf("First addres byte es %i \n",first_address_byte);
-    //printf("accesses number es %i \n",accesses_number);
     cache.cache_blocks[set][way].last_access=accesses_number;
     cache.cache_blocks[set][way].tag=tag;
     cache.cache_blocks[set][way].bit_v=1;
@@ -117,51 +123,32 @@ void write_block(int way, int setnum){
     unsigned int number_of_block=(cache.cache_blocks[setnum][way].tag << cache.index_bits)+setnum;
     unsigned int first_address= (number_of_block << cache.offset_bits);
     unsigned int bytes_for_word=cache.block_size/BYTES_FOR_CHAR;
-    //unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR)-bytes_for_word;
     unsigned int first_address_byte=(first_address/BYTES_FOR_CHAR);
-    //printf("Number of block es %i \n",first_address_byte);
-    //printf("lo que esta es %s \n",cache.cache_blocks[setnum][way].data);
-
     memcpy(&memory_ram[first_address_byte], \
     cache.cache_blocks[setnum][way].data, cache.block_size/BYTES_FOR_CHAR);
 }
 
-unsigned int find_way(unsigned int tag,unsigned int set){
-    block_t* block_in_set=cache.cache_blocks[set];
-    for (int i = 0; i < cache.number_of_ways; i++) {
-        //Veo si algun bloque del conjunto tiene ese mismo tag y el bit
-        //de valido en 1. Si es asi, devuelvo la via en la que se encuentra
-		if (cache.cache_blocks[set][i].tag == tag && cache.cache_blocks[set][i].bit_v) {
-			return i;
-		}
-	}
-	return -1;
-}
 
-unsigned int find_offset(unsigned int address){
-    return address % (1 << cache.offset_bits); //Chequear
-}
+
+
 
 void write_byte(unsigned int address, unsigned char value){
     accesses_number +=1;
     unsigned int tag=get_tag(address);
-    //printf("El tag de %i es %i \n",address,tag);
     unsigned int set=find_set(address);
-    //printf("El set de %i es %i \n",address,set);
     unsigned int way=find_way(tag,set);
     //El offset va a ser por Byte, no por 8 Bytes
     unsigned int offset=find_offset(address);
-    //printf("El offset es %i \n",offset);
     
     if(way!=-1){ //Si esta en cache
-        printf("Hit! \n");
+        printf("Hit \n");
         cache.total_hits++;
         cache.cache_blocks[set][way].data[offset]=value;
         cache.cache_blocks[set][way].bit_d=1;
         return;
     }
     cache.total_misses++;
-    printf("Miss! \n");
+    printf("Miss \n");
     memory_ram[address/BYTES_FOR_CHAR]=value;
     //printf("Bloque a leer es %i \n",address >> cache.offset_bits);
     read_block(address >> cache.offset_bits);
@@ -175,15 +162,14 @@ unsigned char read_byte(unsigned int address){
     unsigned int offset=find_offset(address);
 
     if(way!=-1){
-        printf("Hit! \n");
-        printf("Set es %i way es %i offset es %i \n",set,way,offset);
+        printf("Hit ");
+        //printf("Set es %i way es %i offset es %i \n",set,way,offset);
         cache.total_hits++;
         return cache.cache_blocks[set][way].data[offset];
     }
     else{
-        printf("Miss! \n");
+        printf("Miss ");
         cache.total_misses++;
-        printf("Bloque a leer es %i \n",address>>cache.offset_bits);
         read_block(address >> cache.offset_bits);
         return memory_ram[address/BYTES_FOR_CHAR];
     }

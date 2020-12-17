@@ -69,11 +69,11 @@ int main(int argc,char* argv[])
     if( prepareStreams(filenameOptions[INPUT],filenameOptions[OUTPUT],&f_in,&f_out)!=true )
         return 1;
 
-    size_t nread = 0;
+    ssize_t nread;
     size_t buf_size = BUF_LINE;
     bool init_set = false;
 
-    while ( (nread = getline(&buf,&buf_size,f_in)) )
+    while ( (nread = getline(&buf,&buf_size,f_in)) >=0 )
     {
 	    parse_command_cache(buf,&init_set,f_out);
 	}
@@ -127,7 +127,7 @@ bool parse_command_cache(char * buf, bool *init_set ,FILE *f)
                 // write cache
                 break;
             default:
-                fprintf(f,"Not a valid command\n");
+                fprintf(f,"Not a valid command: %s\n",buf);
                 return false;
         }
     }

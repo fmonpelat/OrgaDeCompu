@@ -76,25 +76,33 @@ int main (int argc, char **argv)
 
   if(divisor)
   {
-    // call divisor procedure to calculate in C
-    //fprintf(f,"%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    #ifdef MIPS
     // call divisor procedure to calculate in asm
     fprintf(f,"%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    #else
+    // call divisor procedure to calculate in C
+    fprintf(f,"%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    #endif
   }
   else if(multiple)
   {
-    // call multiple procedure to calculate in C
-    //fprintf(f,"%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    #ifdef MIPS
     // call multiple procedure to calculate in asm
     fprintf(f,"%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    #else
+    // call multiple procedure to calculate in C
+    fprintf(f,"%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    #endif
   }
   else
   {
-    // both 
-    //fprintf(f,"%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
-    //fprintf(f,"%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    #ifdef MIPS
     fprintf(f,"%d\n",asmMcd((unsigned int)nums[0],(unsigned int)nums[1]));
     fprintf(f,"%d\n",asmMcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    #else
+    fprintf(f,"%d\n",mcd((unsigned int)nums[0],(unsigned int)nums[1]));
+    fprintf(f,"%d\n",mcm((unsigned int)nums[0],(unsigned int)nums[1]));
+    #endif
   }
 
   fclose(f);

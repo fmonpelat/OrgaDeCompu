@@ -81,7 +81,7 @@ int main(int argc,char* argv[])
 	}
 
     free(buf);
-    fclose(f_in);
+    // fclose(f_in);
     fclose(f_out);
     return 0;
 }

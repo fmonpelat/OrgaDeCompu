@@ -53,7 +53,7 @@ void init(){
     for(int j=0;j< cache.number_of_ways;j++){
         cache.cache_blocks[0][j].last_access=0;
     }
-    accesses_number =0;
+    accesses_number=0;
 }
 
 unsigned int find_set(unsigned int address){
@@ -97,7 +97,6 @@ void read_block(int blocknum){
     //Si el bloque de cache que se va a reemplazar, ya estaba escrito
     //guardo lo que estaba escrito en memoria
     if(is_dirty(way,set)==1){
-        printf("Is dirty! \n");
         write_block(way,set);
     }
     //printf("First addres byte es %i \n",first_address_byte);
@@ -245,6 +244,36 @@ void prueba_mem_3(){
     printf("%d \n",read_byte(2048));
     printf("%d \n",read_byte(3072));
     printf("%d \n",read_byte(4096));
+    printf("Porcentaje de misses es %d \n",get_miss_rate());
+}
+
+void prueba_mem_4(){
+    cache.block_size=128;
+    cache.number_of_ways=1;
+    cache.cache_size=16384;
+    init();
+    write_byte(0,123);
+    write_byte(128,234);
+    write_byte(256,33);
+    write_byte(384,44);
+    printf("%d \n",read_byte(0));
+    printf("%d \n",read_byte(128));
+    printf("%d \n",read_byte(256));
+    printf("%d \n",read_byte(384));
+    printf("Porcentaje de misses es %d \n",get_miss_rate());
+}
+
+void prueba_mem_5(){
+    cache.block_size=128;
+    cache.number_of_ways=1;
+    cache.cache_size=16384;
+    init();
+    write_byte(0,255);
+    printf("%d \n",read_byte(0));
+    write_byte(16384,254);
+    printf("%d \n",read_byte(16384));
+    write_byte(32768,248);
+    printf("%d \n",read_byte(32768));
     printf("Porcentaje de misses es %d \n",get_miss_rate());
 }
 

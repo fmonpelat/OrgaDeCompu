@@ -61,7 +61,7 @@ void init(){
         cache.cache_blocks[i]=malloc(sizeof(block_t)*cache.number_of_ways);
         for(int j=0;j< cache.number_of_ways;j++){
             cache.cache_blocks[i][j].data=malloc\
-            (sizeof(unsigned char)*cache.block_size/8);
+            (sizeof(unsigned char)*cache.block_size);
             cache.cache_blocks[i][j].bit_d=0;
             cache.cache_blocks[i][j].bit_v=0;
             cache.cache_blocks[i][j].last_access=0;

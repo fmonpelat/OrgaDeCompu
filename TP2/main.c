@@ -41,8 +41,6 @@ int main(int argc,char* argv[])
     ssize_t nread;
     size_t buf_size = BUF_LINE;
     bool init_set = false;
-    // prueba_mem_4();
-     //prueba_mem_5();
 
     while ( (nread = getline(&buf,&buf_size,f_in)) >=0 )
     {

@@ -174,7 +174,6 @@ void write_byte(unsigned int address, unsigned char value){
     unsigned int tag=get_tag(address);
     unsigned int set=find_set(address);
     unsigned int way=find_way(tag,set);
-    //El offset va a ser por Byte, no por 8 Bytes
     unsigned int offset=find_offset(address);
     
     if(way!=-1){ //Si esta en cache

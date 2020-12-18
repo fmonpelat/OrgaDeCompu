@@ -31,8 +31,6 @@ typedef struct cache{
 typedef unsigned char memory_ram_t[MEMORY_RAM_SIZE];
 
 
-int get_blocks_per_set();
-
 void init();
 
 /* debe devolver el conjunto de

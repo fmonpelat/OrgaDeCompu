@@ -2,18 +2,26 @@
 
 CC=gcc
 DEBUG=gdb
-CFLAGS= -Wall -g -O3 -mabicalls -Wconversion -Wtype-limits -pedantic
+CFLAGS= -Wall -g -O3 -Wconversion -Wtype-limits -pedantic
 OUTFILE=binaries/tp1
 OUTPUT=input/output.txt
 OBJ= binaries/tp1
-SOURCES=src/main.c src/euclidean.c asm/asmEuclidean.S
+MAIN=src/main.c
+C_SOURCES=src/euclidean.c
+ASM_SOURCES=asm/asmEuclidean.S
 EXECUTABLE=main
+
+ifeq ($(findstring mips,$(shell uname -m)),mips)
+	SOURCES = -mabicalls -DMIPS -o $(OBJ) $(MAIN) $(ASM_SOURCES)
+else
+	SOURCES = -o $(OBJ) $(MAIN) $(C_SOURCES)
+endif
 
 all: $(EXECUTABLE)
 
 main: 
 	@mkdir -p binaries
-	$(CC) $(CFLAGS) -o $(OBJ) $(SOURCES)
+	$(CC) $(CFLAGS) $(SOURCES)
 
 debug: all
 	$(DEBUG) -ex 'tui enable' -ex 'break main' --args $(OUTFILE) 20 30
